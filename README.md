@@ -5,13 +5,23 @@ Instance segmentation in event-based videos (Research project).
 Required background knowledge:
 - TODO: Add links ...
 
-## Setting up Miniconda
+## Setting up Miniconda (for Windows only)
 For this project we are currently using: Python 3.9 and Miniconda3  
 Make a Virtual environment with Miniconda3 by following this [youtube tutorial](https://www.youtube.com/watch?v=1gtHso20YMQ&ab_channel=CharlBotha).
+
+In miniconda command line:
 ```
 conda create --name instance_segmentation python=3.9  
 conda info --envs  
 conda activate instance_segmentation  
+```
+
+For Pytorch
+```
+conda install astunparse numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
+conda install -c conda-forge libuv=1.39
+pip3 install torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
+pip freeze > requirements.txt
 ```
 
 ## Badges
