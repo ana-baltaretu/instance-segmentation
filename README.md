@@ -2,16 +2,21 @@
 
 Instance segmentation in event-based videos (Research project).
 
+For this project we are currently using: Python 3.8.12, Miniconda3 and Pytorch. This is because it should be compatible with [HPC](https://gitlab.tudelft.nl/pattern-recognition-and-bioinformatics/wiki/-/wikis/HPC-quickstart-guide) so we can make use of training the models on it.
+
 Required background knowledge:
-- TODO: Add links ...
+- What is an event-based camera? [Link1](https://www.youtube.com/watch?v=MjX3z-6n3iA), [Link2](https://www.youtube.com/watch?v=6xOmo7Ikwzk&ab_channel=Sony)
+- Basic Machine Learning (ML) knowledge and what is a neural network (NN)? [3b1b playlist](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
+- Basic Pytorch knowledge. [60min tutorial](https://pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html)
+- Image Processing and Computational Intelligence knowledge from courses like CSE2225 and CSE2530.
 
 ## Setting up Miniconda (for Windows only)
-For this project we are currently using: Python 3.9 and Miniconda3  
+
 Make a Virtual environment with Miniconda3 by following this [youtube tutorial](https://www.youtube.com/watch?v=1gtHso20YMQ&ab_channel=CharlBotha).
 
 In miniconda command line:
 ```
-conda create --name instance_segmentation python=3.9  
+conda create --name instance_segmentation python=3.8.12  
 conda info --envs  
 conda activate instance_segmentation  
 ```
@@ -75,4 +80,5 @@ TODO: add licenses...
 [comment]: <> (For open source projects, say how it is licensed.)
 
 ## Relevant Papers
-TODO: add papers...
+1. [Event-based Vision: A Survey](https://arxiv.org/pdf/1904.08405.pdf)
+2. ...
