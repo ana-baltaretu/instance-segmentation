@@ -17,10 +17,14 @@ PySocks @ file:///C:/ci/pysocks_1605307512533/work
 PyYAML==6.0
 requests @ file:///opt/conda/conda-bld/requests_1641824580448/work
 six @ file:///tmp/build/80754af9/six_1644875935023/work
-torch
+torch~=1.8.1+cpu
 torchaudio
-torchvision
+torchvision~=0.9.1+cpu
 typing_extensions @ file:///opt/conda/conda-bld/typing_extensions_1647553014482/work
 urllib3 @ file:///C:/ci/urllib3_1650639883891/work
 win-inet-pton @ file:///C:/ci/win_inet_pton_1605306162074/work
 wincertstore==0.2
+tonic~=1.0.19
+
+numpy~=1.21.5
+matplotlib
