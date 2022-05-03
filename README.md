@@ -21,13 +21,36 @@ conda info --envs
 conda activate instance_segmentation  
 ```
 
+Hopefully just running the following command should work:
+```
+pip install -r requirements.txt
+```
+
+<details>
+  <summary>Otherwise check this section!</summary>
+  
+
+
 For Pytorch
 ```
 conda install astunparse numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
 conda install -c conda-forge libuv=1.39
 pip3 install torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
-pip freeze > requirements.txt
 ```
+
+
+Data visualization:  
+```
+pip install tonic
+pip install matplotlib
+```
+
+[comment]: <> (pip freeze > requirements.txt)
+</details>
+
+
+
+
 
 ## Badges
 TODO: add badges or remove section...
@@ -51,7 +74,7 @@ TODO: add explanation of output...
 ## Roadmap
 W1 starting on 19/04/2022.
 - [x] W1 intro to course
-- [ ] W2 reading and project setup
+- [x] W2 reading and project setup
 - [ ] W3 dataset exploration and generation
 - [ ] W4 data pre-processing and testing different off-the-shelf algorithms
 - [ ] W5 midterm poster presentation and looking into different evaluation metrics
