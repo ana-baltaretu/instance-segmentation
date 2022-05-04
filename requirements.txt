@@ -28,3 +28,4 @@ tonic~=1.0.19
 
 numpy~=1.21.5
 matplotlib
+snntorch
