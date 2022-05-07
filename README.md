@@ -45,6 +45,15 @@ pip install tonic
 pip install matplotlib
 ```
 
+OpenCV:
+```
+python3.8 -m pip install opencv-python
+```
+
+```
+pip install scikit-image
+```
+
 [comment]: <> (pip freeze > requirements.txt)
 </details>
 

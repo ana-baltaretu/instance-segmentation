@@ -24,7 +24,7 @@ def basic_load():
     events, target = dataset[0]
 
     print(events)
-    tonic.utils.plot_event_grid(events)
+    tonic.utils.plot_event_grid(events, axis_array=(3, 3))
 
 
 def load_sample_simple(trainset):
@@ -81,7 +81,7 @@ def denoise_load():
     cached_load(trainset)
 
 if __name__ == '__main__':
-    # basic_load()
+    basic_load()
 
-    denoise_load()
+    # denoise_load()
 

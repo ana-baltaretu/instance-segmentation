@@ -68,5 +68,7 @@ if __name__ == '__main__':
     # plot_frames_denoised()
 
     # plot_voxel_grid()
-
-    plot_time_surfaces()
+    print(events)
+    for event in events:
+        print(event)
+    # plot_time_surfaces()

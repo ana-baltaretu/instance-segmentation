@@ -4,3 +4,5 @@ data/
 evdistill/
 tutorials/cache
 dvs_clustering_tracking/
+event_utils/
+ccnet/
