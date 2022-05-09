@@ -6,3 +6,6 @@ tutorials/cache
 dvs_clustering_tracking/
 event_utils/
 ccnet/
+ev-segnet/
+rpg_event_representation_learning/
+tutorials/plots/
