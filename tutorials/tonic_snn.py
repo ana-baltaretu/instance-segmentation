@@ -15,6 +15,8 @@ import matplotlib as plt
 from torch.utils.data import DataLoader
 from tonic import CachedDataset
 
+from src.visualize import plot_frames
+
 
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
@@ -31,15 +33,6 @@ def load_sample_simple(trainset):
     for i in range(100):
         events, target = trainset[i]
         # print(events)
-
-
-def plot_frames(frames):
-    fig, axes = plt.subplots(1, len(frames))
-    for axis, frame in zip(axes, frames):
-        axis.imshow(frame[1] - frame[0])
-        axis.axis("off")
-    plt.tight_layout()
-    plt.show()
 
 
 def load_sample_cached(cached_dataloader):
