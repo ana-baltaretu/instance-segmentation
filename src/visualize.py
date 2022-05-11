@@ -3,6 +3,8 @@ import tonic
 import os
 import numpy as np
 import cv2
+import statistics
+import math
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 
@@ -80,7 +82,7 @@ def resize_image(img, percentage):
     return resized
 
 
-def generate_event_frames(positive_event_array, negative_event_array, window_len=20, img_shape=(34, 34)):
+def generate_event_frames(positive_event_array, negative_event_array, window_len=10, img_shape=(34, 34)):
     """
     Takes events in intervals of len=window_len and turns them into a frame, blue=positive, red=negative.
     :param positive_event_array: Positive events (x, y, custom_z, timestamp_in_ms).
@@ -100,27 +102,123 @@ def generate_event_frames(positive_event_array, negative_event_array, window_len
     while i < len(time_data_pos) and j < len(time_data_neg):
         current_time = min(time_data_pos[i], time_data_neg[j])
         current_frame = np.zeros((img_height, img_width, 3), np.uint8)
+        # current_frame.fill(255)
         while i < len(time_data_pos) and time_data_pos[i] < current_time + window_len:
             x = x_data_pos[i]
             y = y_data_pos[i]
-            current_frame[x][y] = (255, 0, 0)   # Blue
+            current_frame[y][x] = (255, 0, 0)   # Blue
             i += 1
         while j < len(time_data_neg) and time_data_neg[j] < current_time + window_len:
             x = x_data_neg[j]
             y = y_data_neg[j]
-            current_frame[x][y] = (0, 0, 255)   # Red
+            current_frame[y][x] = (0, 0, 255)   # Red
             j += 1
         frames.append(current_frame)
 
     return frames
 
 
-def show_events(frames):
+def generate_fixed_num_events_frames(positive_event_array, negative_event_array, total_frames=20, img_shape=(34, 34)):
+
+    img_height, img_width = img_shape
+
+    frames = []
+    i, j = 0, 0
+
+    x_data_pos, y_data_pos, z_data_pos, time_data_pos = positive_event_array
+    x_data_neg, y_data_neg, z_data_neg, time_data_neg = negative_event_array
+
+    window_len_pos = int(len(time_data_pos) / total_frames)
+    window_len_neg = int(len(time_data_neg) / total_frames)
+
+    len_arr_x, len_arr_y, center_indices = [], [], []
+
+    while i < len(time_data_pos) and j < len(time_data_neg):
+        current_i, current_j = i, j
+        current_frame = np.zeros((img_height, img_width, 3), np.uint8)
+        # current_frame.fill(255)
+        while i < len(time_data_pos) and i < current_i + window_len_pos:
+            x = x_data_pos[i]
+            y = y_data_pos[i]
+            current_frame[y][x] = (255, 0, 0)   # Blue
+            i += 1
+        while j < len(time_data_neg) and j < current_j + window_len_neg:
+            x = x_data_neg[j]
+            y = y_data_neg[j]
+            current_frame[y][x] = (0, 0, 255)   # Red
+            j += 1
+
+        # pos_mean_x = statistics.mean(x_data_pos[current_i:i])
+        # pos_mean_y = statistics.mean(y_data_pos[current_i:i])
+        # neg_mean_x = statistics.mean(x_data_neg[current_j:j])
+        # neg_mean_y = statistics.mean(y_data_neg[current_j:j])
+
+        # overall_mean_x = int((pos_mean_x + neg_mean_x) / 2)
+        # overall_mean_y = int((pos_mean_y + neg_mean_y) / 2)
+
+        pos_mn_x = min(x_data_pos[current_i:i])
+        pos_mn_y = min(y_data_pos[current_i:i])
+        pos_mx_x = max(x_data_pos[current_i:i])
+        pos_mx_y = max(y_data_pos[current_i:i])
+
+        pos_overall_x = ((pos_mx_x - pos_mn_x) / 2) + pos_mn_x
+        pos_overall_y = ((pos_mx_y - pos_mn_y) / 2) + pos_mn_y
+
+        neg_mn_x = min(x_data_neg[current_j:j])
+        neg_mn_y = min(y_data_neg[current_j:j])
+        neg_mx_x = max(x_data_neg[current_j:j])
+        neg_mx_y = max(y_data_neg[current_j:j])
+
+        len_x = max(pos_mx_x, neg_mx_x) - min(pos_mn_x, neg_mn_x)
+        len_y = max(pos_mx_y, neg_mx_y) - min(pos_mn_y, neg_mn_y)
+
+        neg_overall_x = ((neg_mx_x - neg_mn_x) / 2) + neg_mn_x
+        neg_overall_y = ((neg_mx_y - neg_mn_y) / 2) + neg_mn_y
+
+        overall_x = int((pos_overall_x + neg_overall_x) / 2)
+        overall_y = int((pos_overall_y + neg_overall_y) / 2)
+
+        len_arr_x.append(len_x)
+        len_arr_y.append(len_y)
+        center_indices.append((overall_x, overall_y))
+
+        # Center of the number
+        # current_frame[overall_y][overall_x] = (255, 0, 255)
+
+        frames.append(current_frame)
+
+    # print(len_arr_x)
+    # print(len_arr_y)
+    mean_len_x = statistics.mean(len_arr_x)
+    mean_len_y = statistics.mean(len_arr_y)
+    hx, hy = math.ceil(mean_len_x/2), math.ceil(mean_len_y/2)
+    # print()
+    # print()
+
+    cropped_frames = []
+
+    for ind, frame in enumerate(frames):
+        (cx, cy) = center_indices[ind]
+        # print(cx, cy, hx, hy)
+        x0, x1, y0, y1 = cx - hx, cx + hx, cy - hy, cy + hy
+
+        # # Add purple corners
+        # frame[y0][x0] = (255, 0, 255)
+        # frame[y0][x1] = (255, 0, 255)
+        # frame[y1][x0] = (255, 0, 255)
+        # frame[y1][x1] = (255, 0, 255)
+
+        cropped = frame[y0: y1 + 1, x0: x1 + 1]
+        cropped_frames.append(cropped)
+
+    return frames, cropped_frames, mean_len_x, mean_len_y
+
+def show_events(frames, path):
     for ind, frame in enumerate(frames):
         frame = resize_image(frame, 1000)
-        cv2.imwrite('frames/frame' + str(ind) + '.png', frame)
+        cv2.imwrite(path + str(ind) + '.png', frame)
         cv2.imshow("frame", frame)
-        cv2.waitKey(0)
+        cv2.waitKey(200)
     cv2.destroyAllWindows()
 
     # k = cv2.waitKey(0)
