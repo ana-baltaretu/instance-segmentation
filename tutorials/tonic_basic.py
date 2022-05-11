@@ -7,14 +7,16 @@ import numpy as np
 import tonic
 import tonic.transforms as transforms
 import matplotlib.pyplot as plt
+import cv2
 
-from src.visualize import plot_1_channel_3D, generate_event_arrays, plot_frames_denoised
+from src.visualize import plot_1_channel_3D, generate_event_arrays, plot_frames_denoised, plot_2_channel_3D, generate_event_frames, show_events
+from src.canny import apply_canny_part
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 dataset = tonic.datasets.NMNIST(save_to='../data', train=False)
-my_events, target = dataset[1000]
+my_events, target = dataset[0]
 
 sensor_size = tonic.datasets.NMNIST.sensor_size
 frame_transform = transforms.ToFrame(sensor_size=sensor_size, n_time_bins=3)
@@ -53,17 +55,43 @@ def plot_time_surfaces(events):
     plt.show()
 
 
+
+
+
 if __name__ == '__main__':
     # plot_frames(frames)
 
-    plot_frames_denoised(frame_transform, my_events)
+    # plot_frames_denoised(frame_transform, my_events)
+    positive_event_array = generate_event_arrays(my_events, 1, 300, 100)
+    negative_event_array = generate_event_arrays(my_events, 0, 300, 100)
 
-    x_data_pos, y_data_pos, z_data_pos = generate_event_arrays(my_events, 1)
-    x_data_neg, y_data_neg, z_data_neg = generate_event_arrays(my_events, 0)
+    x_data_pos, y_data_pos, z_data_pos, time_data_pos = positive_event_array
+    x_data_neg, y_data_neg, z_data_neg, time_data_neg = negative_event_array
 
-    plot_1_channel_3D(x_data_pos, y_data_pos, z_data_pos, "Blues", "plots/pos")
-    plot_1_channel_3D(x_data_neg, y_data_neg, z_data_neg, "Reds", "plots/neg")
+    frames = generate_event_frames(positive_event_array, negative_event_array)
+    show_events(frames)
 
+    # mx_time_stamp = max(max(time_data_pos), max(time_data_neg))
+    # mn_time_stamp = min(min(time_data_pos), min(time_data_neg))
+    # time_diff = mx_time_stamp - mn_time_stamp
+    #
+    # print(mn_time_stamp, mx_time_stamp)
+    # print(time_diff)
+    #
+    # print(time_diff / 4)
+
+    #
+    # plot_1_channel_3D(x_data_pos, y_data_pos, z_data_pos, "Blues", "plots/pos")
+    # plot_1_channel_3D(x_data_neg, y_data_neg, z_data_neg, "Reds", "plots/neg")
+
+    # x_data_pos, y_data_pos, z_data_pos, time_data_pos = generate_event_arrays(my_events[3*int(len(my_events)/4):], 1)
+    # x_data_neg, y_data_neg, z_data_neg, time_data_neg = generate_event_arrays(my_events[3*int(len(my_events)/4):], 0)
+
+    # plot_2_channel_3D(x_data_pos, y_data_pos, z_data_pos, "Blues", x_data_neg, y_data_neg, z_data_neg, "Reds", "plots/comb")
+
+
+
+    # img = apply_canny_part(img)
     # plot_voxel_grid(my_events)
     # plot_time_surfaces(my_events)
 
