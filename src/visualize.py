@@ -5,6 +5,8 @@ import numpy as np
 import cv2
 import statistics
 import math
+import imageio
+from PIL import Image
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 
@@ -187,22 +189,16 @@ def generate_fixed_num_events_frames(positive_event_array, negative_event_array,
 
         frames.append(current_frame)
 
-    # print(len_arr_x)
-    # print(len_arr_y)
     mean_len_x = statistics.mean(len_arr_x)
     mean_len_y = statistics.mean(len_arr_y)
     hx, hy = math.ceil(mean_len_x/2), math.ceil(mean_len_y/2)
-    # print()
-    # print()
 
-    cropped_frames = []
-
+    cropped_frames, cropping_positions = [], []
     for ind, frame in enumerate(frames):
         (cx, cy) = center_indices[ind]
-        # print(cx, cy, hx, hy)
         x0, x1, y0, y1 = cx - hx, cx + hx, cy - hy, cy + hy
-
         # # Add purple corners
+        # print(cx, cy, hx, hy)
         # frame[y0][x0] = (255, 0, 255)
         # frame[y0][x1] = (255, 0, 255)
         # frame[y1][x0] = (255, 0, 255)
@@ -210,8 +206,10 @@ def generate_fixed_num_events_frames(positive_event_array, negative_event_array,
 
         cropped = frame[y0: y1 + 1, x0: x1 + 1]
         cropped_frames.append(cropped)
+        cropping_positions.append((y0, y1 + 1, x0, x1 + 1))
 
-    return frames, cropped_frames, mean_len_x, mean_len_y
+    return frames, cropped_frames, hx * 2 + 1, hy * 2 + 1, cropping_positions
+
 
 def show_events(frames, path):
     for ind, frame in enumerate(frames):
@@ -229,7 +227,14 @@ def show_events(frames, path):
     #     cv2.destroyAllWindows()
 
 
+def generate_gif(save_path, images):
+    imgs = []
+    for image in images:
+        color_coverted = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        imgs.append(Image.fromarray(color_coverted))
 
+    # duration is the number of milliseconds between frames
+    imgs[0].save(save_path, save_all=True, append_images=imgs[1:], duration=100, loop=0)
 
 
 

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import cv2
 
 from src.visualize import plot_1_channel_3D, generate_event_arrays, plot_frames_denoised, plot_2_channel_3D, \
-    generate_event_frames, show_events, generate_fixed_num_events_frames, resize_image
+    generate_event_frames, show_events, generate_fixed_num_events_frames, resize_image, generate_gif
 from src.canny import apply_canny_part
 
 import os
@@ -83,19 +83,20 @@ if __name__ == '__main__':
     # frames = generate_event_frames(positive_event_array, negative_event_array)
     # show_events(frames, 'frames/fixed_time')
 
-    frames, cropped_frames, len_x, len_y = generate_fixed_num_events_frames(positive_event_array, negative_event_array)
+    frames, cropped_frames, len_x, len_y, cropping_positions \
+        = generate_fixed_num_events_frames(positive_event_array, negative_event_array)
     # show_events(frames, 'frames/fixed_events')
     # show_events(cropped_frames, 'frames/cropped_frames')
 
     kernel_size = 15
 
-    summed_mat = np.zeros((len_y + 5, len_x + 5, 3), np.uint8)
+    summed_mat = np.zeros((len_y, len_x, 3), np.uint8)
     gray_summed_mat = cv2.cvtColor(summed_mat, cv2.COLOR_BGR2GRAY)
 
     for cropped in cropped_frames:
         gray_scaled = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
         x_arr, y_arr = np.where(gray_scaled > 0)
-        print(x_arr, y_arr)
+        # print(x_arr, y_arr)
         for ind, x in enumerate(x_arr):
             y = y_arr[ind]
             gray_summed_mat[x][y] += 1
@@ -110,58 +111,86 @@ if __name__ == '__main__':
     resized = resize_image(gray_summed_mat, 2000)
     closing_gray_summed_mat = cv2.morphologyEx(resized, cv2.MORPH_CLOSE, make_kernel(11)[0], iterations=3, borderType=cv2.BORDER_CONSTANT)
     (thresh, th_gray_summed_mat) = cv2.threshold(closing_gray_summed_mat, 100, 255, cv2.THRESH_BINARY) # 36
-
+    revert_resize = resize_image(th_gray_summed_mat, 5)
     cv2.imshow("gray_summed_mat", gray_summed_mat)
     cv2.imshow("th_gray_summed_mat", th_gray_summed_mat)
-    cv2.imshow("closing_gray_summed_mat", closing_gray_summed_mat)
+    cv2.imshow("revert_resize", revert_resize)
+    x, y = np.where(revert_resize > 0)
+    colorized_mask = cv2.cvtColor(revert_resize, cv2.COLOR_GRAY2BGRA)
 
-    edged = cv2.Canny(th_gray_summed_mat, 30, 200)
-    cv2.imshow("edged", edged)
+    colorized_mask[x, y] = (0, 255, 255, 255)
+    # print(revert_resize.shape)
+    # print(gray_summed_mat.shape)
+    # cv2.imshow("closing_gray_summed_mat", closing_gray_summed_mat)
+    # edged = cv2.Canny(th_gray_summed_mat, 30, 200)
+    # cv2.imshow("edged", edged)
     cv2.waitKey(0)
 
-    dilated_frames = []
-    for cropped in cropped_frames:
-        resized = resize_image(cropped, 2000)
-        gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
-        (thresh, black_and_white) = cv2.threshold(gray, 10, 255, cv2.THRESH_BINARY)
+    label_masked_frames = []
 
-        cv2.imshow("black_and_white", black_and_white)
-        closing = cv2.morphologyEx(black_and_white, cv2.MORPH_CLOSE, make_kernel(17)[0], iterations=2)
+    for ind, frame in enumerate(frames):
+        (y0, y1, x0, x1) = cropping_positions[ind]
+        result = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
+        positioned_colorized_mask = np.zeros(result.shape, np.uint8)
+        positioned_colorized_mask[y0:y1, x0:x1] = colorized_mask
+        result = cv2.addWeighted(result, 1, positioned_colorized_mask, 0.3, 0)
+        label_masked_frames.append(result)
 
-        closing = cv2.morphologyEx(closing, cv2.MORPH_CLOSE, make_kernel(11)[0], iterations=5)
-        # eroded_image = cv2.dilate(gray, kernel, iterations=1)
-        # dilated_image = cv2.dilate(closing, kernel, iterations=3)
+    # show_events(label_masked_frames, 'frames/label_masked_frames' + str(target) + '_')
 
-        # cv2.imshow("closing", closing)
-        # cv2.waitKey(200)
-
-
-        # (thresh, black_and_white) = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-
-
-        edged = cv2.Canny(closing, 30, 200)
-
-        cv2.imshow("edged", edged)
-        cv2.waitKey(200)
-
-        contours, hierarchy = cv2.findContours(edged,
-                                               cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
-        cv2.drawContours(resized, contours, -1, (0, 255, 0), 3)
-        resized = resize_image(resized, 25)
-
-        # dil = cv2.blur(resized, kernel_pair)
-        # # dil = cv2.dilate(dil, kernel)
-        # # dil = cv2.dilate(dil, kernel)
-        # # dil = cv2.dilate(dil, kernel)
-        # (thresh, ffff) = cv2.threshold(dil, 100, 255, cv2.THRESH_BINARY)
-        # ffff = resize_image(ffff, 10)
-        dilated_frames.append(resized)
-        # cv2.imshow("dilated", dil)
-        # cv2.waitKey(200)
+    file_paths = os.listdir('frames/')
+    images = []
+    for path in file_paths:
+        image = cv2.imread('frames/' + path, cv2.IMREAD_COLOR)
+        images.append(image)
+        # cv2.imshow("image", image)
+        # cv2.waitKey(100)
+    generate_gif('./mask_applied.gif', images)
 
 
-    show_events(dilated_frames, 'frames/dilated_frames')
+    # dilated_frames = []
+    # for cropped in cropped_frames:
+    #     resized = resize_image(cropped, 2000)
+    #     gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+    #     (thresh, black_and_white) = cv2.threshold(gray, 10, 255, cv2.THRESH_BINARY)
+    #
+    #     cv2.imshow("black_and_white", black_and_white)
+    #     closing = cv2.morphologyEx(black_and_white, cv2.MORPH_CLOSE, make_kernel(17)[0], iterations=2)
+    #
+    #     closing = cv2.morphologyEx(closing, cv2.MORPH_CLOSE, make_kernel(11)[0], iterations=5)
+    #     # eroded_image = cv2.dilate(gray, kernel, iterations=1)
+    #     # dilated_image = cv2.dilate(closing, kernel, iterations=3)
+    #
+    #     # cv2.imshow("closing", closing)
+    #     # cv2.waitKey(200)
+    #
+    #
+    #     # (thresh, black_and_white) = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+    #
+    #
+    #     edged = cv2.Canny(closing, 30, 200)
+    #
+    #     cv2.imshow("edged", edged)
+    #     cv2.waitKey(200)
+    #
+    #     contours, hierarchy = cv2.findContours(edged,
+    #                                            cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    #
+    #     cv2.drawContours(resized, contours, -1, (0, 255, 0), 3)
+    #     resized = resize_image(resized, 25)
+    #
+    #     # dil = cv2.blur(resized, kernel_pair)
+    #     # # dil = cv2.dilate(dil, kernel)
+    #     # # dil = cv2.dilate(dil, kernel)
+    #     # # dil = cv2.dilate(dil, kernel)
+    #     # (thresh, ffff) = cv2.threshold(dil, 100, 255, cv2.THRESH_BINARY)
+    #     # ffff = resize_image(ffff, 10)
+    #     dilated_frames.append(resized)
+    #     # cv2.imshow("dilated", dil)
+    #     # cv2.waitKey(200)
+    #
+    #
+    # show_events(dilated_frames, 'frames/dilated_frames')
 
 
     # mx_time_stamp = max(max(time_data_pos), max(time_data_neg))
