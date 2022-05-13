@@ -11,4 +11,7 @@ ev-segnet/
 rpg_event_representation_learning/
 tutorials/plots/
 tutorials/frames/
+src/frames/
 dvs_bownership/
+*.gif
+*.png

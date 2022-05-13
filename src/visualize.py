@@ -47,7 +47,7 @@ def plot_2_channel_3D(x_data_pos, y_data_pos, z_data_pos, cmap_pos, x_data_neg, 
     plt.show()
 
 
-def generate_event_arrays(events, polarity, div_rate=100, mult_rate=100):
+def generate_event_arrays(events, polarity, div_rate=300, mult_rate=100):
     """
     Used for splitting the array of events into 3 arrays based on polarity (=sign of the event).
 
