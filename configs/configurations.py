@@ -10,7 +10,8 @@ class Config(object):
 #
 # ## dataset
 #         self.n_classes = 6
-        self.datapth = './data/'
+        self.data_path = '../data/'
+        self.frames_path = '../src/frames'
         # self.n_workers = 8
         # self.mean = (0.485, 0.456, 0.406)
         # self.std = (0.229, 0.224, 0.225)
