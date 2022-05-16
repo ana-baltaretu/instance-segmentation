@@ -1,5 +1,5 @@
 import tonic.transforms as transforms
-from label_generation import *
+from src.label_generation import *
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
@@ -13,9 +13,9 @@ if __name__ == '__main__':
     sensor_size = tonic.datasets.NMNIST.sensor_size
     frame_transform = transforms.ToFrame(sensor_size=sensor_size, n_time_bins=3)
 
-    # for i in target_arrays:
-    #     generate_masks(dataset[i])
-    generate_masks(dataset[9200])
+    for i in target_arrays:
+        generate_masks(dataset[i])
+    # generate_masks(dataset[9200])
 
     frames_path = 'frames/'
     if not os.path.isdir(frames_path):

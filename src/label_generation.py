@@ -1,6 +1,6 @@
-from visualize import *
-from util import *
-from event_frame_generation import *
+from src.visualize import *
+from src.util import *
+from src.event_frame_generation import *
 
 
 def create_gray_summed_mat(cropped_frames, len_y, len_x):
@@ -34,6 +34,7 @@ def generate_average_mask(stretched_mat):
 
 def generate_masks(dataset_entry):
     my_events, target = dataset_entry
+    # plot_frames_denoised(frame_transform, my_events)
     print(target)
 
     denoise_transform = tonic.transforms.Denoise(filter_time=5000)
@@ -45,20 +46,25 @@ def generate_masks(dataset_entry):
     frames, cropped_frames, len_x, len_y, cropping_positions \
         = generate_fixed_num_events_frames(positive_event_array, negative_event_array)
 
+    show_events(frames, 'input/frame_' + str(target) + '_')
+
     gray_summed_mat = create_gray_summed_mat(cropped_frames, len_y, len_x)
     stretched_mat = contrast_stretch(gray_summed_mat, len(cropped_frames))
 
     colorized_mask = generate_average_mask(stretched_mat)
 
     label_masked_frames = []
+    colorized_masks = []
     for ind, frame in enumerate(frames):
         (y0, y1, x0, x1) = cropping_positions[ind]
         result = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
         positioned_colorized_mask = np.zeros(result.shape, np.uint8)
         positioned_colorized_mask[y0:y1, x0:x1] = colorized_mask
-        result = cv2.addWeighted(result, 1, positioned_colorized_mask, 0.3, 0)
+        result = cv2.addWeighted(result, 1, positioned_colorized_mask, 0.5, 0)
+        colorized_masks.append(positioned_colorized_mask)
         label_masked_frames.append(result)
 
+    # show_events(colorized_masks, 'colorized_masks/frame_' + str(target) + '_')
     show_events(label_masked_frames, 'frames/label_masked_frame' + str(target) + '_')
 
 

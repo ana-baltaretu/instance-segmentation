@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import tonic
 import os
-from util import *
+from src.util import *
 from PIL import Image
 import tonic.transforms as transforms
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
