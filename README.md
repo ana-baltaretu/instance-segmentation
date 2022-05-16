@@ -57,6 +57,32 @@ pip install scikit-image
 [comment]: <> (pip freeze > requirements.txt)
 </details>
 
+<details>
+  <summary>If Mask R-CNN is acting up read this!</summary>
+
+[Working fork of Mask R-CNN TF2](https://github.com/alsombra/Mask_RCNN-TF2) - working as of May 2022
+[Official Mask R-CNN](https://github.com/matterport/Mask_RCNN) - was not working with installed setup
+
+For h5py:
+```
+pip uninstall h5py
+conda install -c anaconda h5py
+```
+
+For imgaug:
+```
+pip3 install imgaug
+```
+
+For pycocotools:
+```
+pip install cython
+pip install git+https://github.com/philferriere/cocoapi.git#egg=pycocotools^&subdirectory=PythonAPI
+```
+
+</details>
+
+
 
 
 
@@ -84,7 +110,7 @@ TODO: add explanation of output...
 W1 starting on 19/04/2022.
 - [x] W1 intro to course
 - [x] W2 reading and project setup
-- [ ] W3 dataset exploration and generation
+- [x] W3 dataset exploration and generation
 - [ ] W4 data pre-processing and testing different off-the-shelf algorithms
 - [ ] W5 midterm poster presentation and looking into different evaluation metrics
 - [ ] W6 refining based on evaluation results
