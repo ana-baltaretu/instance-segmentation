@@ -80,6 +80,11 @@ pip install cython
 pip install git+https://github.com/philferriere/cocoapi.git#egg=pycocotools^&subdirectory=PythonAPI
 ```
 
+For scipy:
+```
+pip install -U scikit-image==0.16.2
+```
+
 </details>
 
 
