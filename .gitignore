@@ -16,6 +16,7 @@ rpg_event_representation_learning/
 dvs_bownership/
 Mask_RCNN/
 Mask_RCNN-TF2/
+mask-rcnn-rgbd/
 
 tutorials/plots/
 tutorials/frames/
