@@ -1,6 +1,6 @@
-from src.visualize import *
-from src.util import *
-from src.event_frame_generation import *
+from src.my_visualize import *
+from src.my_util import *
+from src.my_event_frame_generation import *
 
 
 def create_gray_summed_mat(cropped_frames, len_y, len_x):

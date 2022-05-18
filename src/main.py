@@ -1,5 +1,5 @@
 import tonic.transforms as transforms
-from src.label_generation import *
+from src.my_label_generation import *
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"

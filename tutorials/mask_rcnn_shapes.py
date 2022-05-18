@@ -71,6 +71,9 @@ class ShapesConfig(Config):
     # use small validation steps since the epoch is small
     VALIDATION_STEPS = 5
 
+    # Shady stuff, leave it as false for easy display
+    USE_MINI_MASK = False
+
 
 config = ShapesConfig()
 config.display()
