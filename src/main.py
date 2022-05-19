@@ -6,7 +6,10 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 
 if __name__ == '__main__':
+    _ = tonic.datasets.NMNIST(save_to='../data', train=True)
     dataset = tonic.datasets.NMNIST(save_to='../data', train=False)
+
+    split_train_test_validation('../data/NMNIST', '../data/N_MNIST', cleanup=False, train_data_percentage=0.8)
 
     #                0,  1,    2,    3,    4,    5,    6,    7,    8,    9
     target_arrays = [0, 1000, 3000, 4000, 4900, 5500, 6500, 7000, 8500, 9200]
