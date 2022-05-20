@@ -46,12 +46,11 @@ def generate_masks(dataset_entry):
     frames, cropped_frames, len_x, len_y, cropping_positions \
         = generate_fixed_num_events_frames(positive_event_array, negative_event_array)
 
-    show_events(frames, 'input/frame_' + str(target) + '_')
-
     gray_summed_mat = create_gray_summed_mat(cropped_frames, len_y, len_x)
     stretched_mat = contrast_stretch(gray_summed_mat, len(cropped_frames))
 
     colorized_mask = generate_average_mask(stretched_mat)
+    # print('Colorized', colorized_mask.shape)
 
     label_masked_frames = []
     colorized_masks = []
@@ -59,13 +58,20 @@ def generate_masks(dataset_entry):
         (y0, y1, x0, x1) = cropping_positions[ind]
         result = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
         positioned_colorized_mask = np.zeros(result.shape, np.uint8)
-        positioned_colorized_mask[y0:y1, x0:x1] = colorized_mask
+        phh, pww, pcc = positioned_colorized_mask.shape
+        hh, ww, cc = colorized_mask.shape
+        # print(y1, phh, x1, pww)
+        hh -= max(y1 - phh, 0)
+        ww -= max(x1 - pww, 0)
+        # print(hh, ww, y1-y0, x1-x0)
+        positioned_colorized_mask[y0:(y0+hh), x0:(x0+ww)] = colorized_mask[0:hh, 0:ww]
         result = cv2.addWeighted(result, 1, positioned_colorized_mask, 0.5, 0)
         colorized_masks.append(positioned_colorized_mask)
         label_masked_frames.append(result)
 
     # show_events(colorized_masks, 'colorized_masks/frame_' + str(target) + '_')
-    show_events(label_masked_frames, 'frames/label_masked_frame' + str(target) + '_')
+    return frames, colorized_masks, target
+
 
 
 

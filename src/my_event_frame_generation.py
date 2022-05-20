@@ -141,7 +141,8 @@ def generate_fixed_num_events_frames(positive_event_array, negative_event_array,
         cropped = frame[y0: y1 + 1, x0: x1 + 1]
         cropped_frames.append(cropped)
         cropping_positions.append((y0, y1 + 1, x0, x1 + 1))
-
+    # print(frame.shape)
+    # print(hx * 2 + 1, hy * 2 + 1, x1 + 1 - x0, y1 + 1 - y0)
     return frames, cropped_frames, hx * 2 + 1, hy * 2 + 1, cropping_positions
 
 

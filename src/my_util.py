@@ -35,74 +35,27 @@ def resize_image(img, percentage):
     return resized
 
 
-def split_train_test_validation(input_path, output_path, cleanup=False, train_data_percentage=0.8):
+def generate_directories(output_path, subdirs):
     """
-    NMNIST is downloaded as a folder with 2 sub-folders ('Train' and 'Test')
-    This method splits the 'Train' folder into 'training' and 'testing' folders (which
-    will be used for training) and the 'Test' folder becomes the 'validation' set.
-    Result is in the N_MNIST folder.
+    Generate directories if they don't exist
+    :param output_path: path to parent folder
+    :param subdirs: what subdirectories need to be generated
     """
-
-    input_train_path = os.path.join(input_path, 'Train')
-    input_test_path = os.path.join(input_path, 'Test')
-
-    assert os.path.exists(input_path)
-    assert os.path.exists(input_train_path)
-    assert os.path.exists(input_test_path)
-
-    # Reset data folder
-    if cleanup is True and os.path.exists(output_path):
-        shutil.rmtree(output_path)
-
-    # If it already exists don't generate it again
-    if os.path.exists(output_path) and len(os.listdir(output_path)) > 0:
-        return
-
-    # Make directory if it doesn't exist
-    if os.path.exists(output_path) is False:
-        os.mkdir(output_path)
-
-    # Copy 'Test' to 'validation'
-    print(input_test_path)
-    print(os.path.join(output_path, 'validation'))
-    shutil.copytree(input_test_path, os.path.join(output_path, 'validation'))
-    print("Copied!")
-
-    # Generate directories if they don't exist
-    subdirs = ['training', 'testing']
     for subdir in subdirs:
         subdir_path = os.path.join(output_path, subdir)
         print(subdir_path)
         if os.path.exists(subdir_path) is False:
             os.mkdir(subdir_path)
 
-    for number_folder in os.listdir(input_train_path):
-        input_number_path = os.path.join(input_train_path, number_folder)
 
-        training_path = os.path.join(os.path.join(output_path, 'training'), number_folder)
-        if os.path.exists(training_path) is False:
-            os.mkdir(training_path)
+def cleanup_files(output_path, cleanup):
+    # Reset data folder
+    if cleanup is True and os.path.exists(output_path):
+        shutil.rmtree(output_path)
 
-        testing_path = os.path.join(os.path.join(output_path, 'testing'), number_folder)
-        if os.path.exists(testing_path) is False:
-            os.mkdir(testing_path)
-
-        print(input_number_path)
-        print(training_path)
-        print(testing_path)
-        print()
-
-        for file in os.listdir(input_number_path):
-            rand = random.random()
-            current_file_path = os.path.join(input_number_path, file)
-            if rand < train_data_percentage:
-                shutil.copyfile(current_file_path, os.path.join(training_path, file))
-                # print('training')
-            else:
-                shutil.copyfile(current_file_path, os.path.join(testing_path, file))
-                # print('testing')
-
-
+    # Make directory if it doesn't exist
+    if os.path.exists(output_path) is False:
+        os.mkdir(output_path)
 
 
 
