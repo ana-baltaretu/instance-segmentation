@@ -125,7 +125,7 @@ class RGBDDataset(ObjectsDataset):
             raise ValueError("No instances for image {}".format(mask_path))
 
         # class_ids = np.array([1] * n_instances, dtype=np.int32)
-        class_ids = np.array([target, 0])
+        class_ids = np.array([0, target])
         return masks, class_ids
 
 if __name__ == '__main__':

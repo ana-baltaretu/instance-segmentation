@@ -38,7 +38,7 @@ class DvsConfig(Config):
     """
     # Give the configuration a recognizable name
     NAME = "N-MNIST-DVS"
-    MODE = 'RGBD'
+    MODE = 'RGB' # 'RGBD'
 
     # Train on 1 GPU and 8 images per GPU. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1
@@ -73,10 +73,10 @@ class DvsConfig(Config):
     # Number of color channels per image. RGB = 3, grayscale = 1, RGB-D = 4
     # Changing this requires other changes in the code. See the WIKI for more
     # details: https://github.com/matterport/Mask_RCNN/wiki
-    IMAGE_CHANNEL_COUNT = 4
+    IMAGE_CHANNEL_COUNT = 3 # 4
 
     # From: https://github.com/orestis-z/mask-rcnn-rgbd/blob/d590e0f5085f8cbe895a6698e284426fd0116aa4/instance_segmentation/sceneNet/train.py#L66-L85
-    MEAN_PIXEL = np.array([123.7, 116.8, 103.9, 127.5])
+    MEAN_PIXEL = np.array([123.7, 116.8, 103.9]) # , 127.5
 
 
 config = DvsConfig()

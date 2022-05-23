@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     split_train_test_validation('../data/NMNIST', '../data/N_MNIST', cleanup=False, train_data_percentage=0.8)
 
-    generate_rgbd_images_and_masks(train_dataset, test_dataset, '../data/N_MNIST_images', skip=700)
+    generate_rgbd_images_and_masks(train_dataset, test_dataset, '../data/N_MNIST_images', cleanup=False, skip=700)
 
     # #                0,  1,    2,    3,    4,    5,    6,    7,    8,    9
     # target_arrays = [0, 1000, 3000, 4000, 4900, 5500, 6500, 7000, 8500, 9200]

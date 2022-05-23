@@ -36,16 +36,41 @@ elif init_with == "coco":
     # See README for instructions to download the COCO weights
     model.load_weights(COCO_MODEL_PATH, by_name=True,
                        exclude=["mrcnn_class_logits", "mrcnn_bbox_fc",
-                                "mrcnn_bbox", "mrcnn_mask"])
+                                "mrcnn_bbox", "mrcnn_mask", "conv1"])
 elif init_with == "last":
     # Load the last model you trained and continue training
     model.load_weights(model.find_last(), by_name=True)
 
-
-
 from warnings import filterwarnings
 filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` is a deprecated alias')
 
+####################### UNCOMMENT THESE WHEN TRAINING #######################
+
+# Train the head branches
+# Passing layers="heads" freezes all layers except the head
+# layers. You can also pass a regular expression to select
+# which layers to train by name pattern.
+model.train(dataset_train, dataset_val,
+            learning_rate=config.LEARNING_RATE,
+            epochs=1,
+            layers='heads')
+
+print('Vroom vroom tuning!!!')
 
 
+# Fine tune all layers
+# Passing layers="all" trains all layers. You can also
+# pass a regular expression to select which layers to
+# train by name pattern.
+model.train(dataset_train, dataset_val,
+            learning_rate=config.LEARNING_RATE / 10,
+            epochs=2,
+            layers="all")
 
+# Save weights
+# Typically not needed because callbacks save after every epoch
+# Uncomment to save manually
+model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes.h5")
+model.keras_model.save_weights(model_path)
+
+####################### UNCOMMENT ABOVE WHEN TRAINING #######################
