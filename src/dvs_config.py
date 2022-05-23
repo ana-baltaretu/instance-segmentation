@@ -37,7 +37,8 @@ class DvsConfig(Config):
     Derived from the base Config class.
     """
     # Give the configuration a recognizable name
-    NAME = "N-MNIST"
+    NAME = "N-MNIST-DVS"
+    MODE = 'RGBD'
 
     # Train on 1 GPU and 8 images per GPU. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1
@@ -75,7 +76,7 @@ class DvsConfig(Config):
     IMAGE_CHANNEL_COUNT = 4
 
     # From: https://github.com/orestis-z/mask-rcnn-rgbd/blob/d590e0f5085f8cbe895a6698e284426fd0116aa4/instance_segmentation/sceneNet/train.py#L66-L85
-    MEAN_PIXEL = np.array([123.7, 116.8, 103.9, 255 / 2])
+    MEAN_PIXEL = np.array([123.7, 116.8, 103.9, 127.5])
 
 
 config = DvsConfig()

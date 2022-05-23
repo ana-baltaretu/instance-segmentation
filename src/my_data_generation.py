@@ -77,9 +77,17 @@ def save_images(chosen_directory, dataset, skip, train_data_percentage=1, second
 
             if os.path.exists(target_path) is False:
                 os.mkdir(target_path)
+                if os.path.exists(target_path + '/frame/') is False:
+                    os.mkdir(target_path + '/frame/')
+                if os.path.exists(target_path + '/mask/') is False:
+                    os.mkdir(target_path + '/mask/')
+                if os.path.exists(target_path + '/depth/') is False:
+                    os.mkdir(target_path + '/depth/')
+
             for j, frame in enumerate(frames):
-                cv2.imwrite(target_path + '/frame' + str(i) + '_' + str(j) + '.png', frame)
-                cv2.imwrite(target_path + '/mask' + str(i) + '_' + str(j) + '.png', colorized_masks[j])
+                cv2.imwrite(target_path + '/frame/frame_' + str(i) + '_' + str(j) + '.png', frame)
+                cv2.imwrite(target_path + '/mask/mask_' + str(i) + '_' + str(j) + '.png', colorized_masks[j])
+                # cv2.imwrite(target_path + '/depth/drepth_' + str(i) + '_' + str(j) + '.png', depth[j])
 
 
 def generate_rgbd_images_and_masks(train_dataset, test_dataset, output_path, cleanup=False, skip=1000):
