@@ -43,6 +43,8 @@ def generate_masks(dataset_entry):
     positive_event_array = generate_event_arrays(events_denoised, 1)
     negative_event_array = generate_event_arrays(events_denoised, 0)
 
+    # TODO Turn this into generation of fixed window length
+
     frames, cropped_frames, len_x, len_y, cropping_positions \
         = generate_fixed_num_events_frames(positive_event_array, negative_event_array)
 

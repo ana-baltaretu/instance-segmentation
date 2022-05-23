@@ -62,8 +62,88 @@ def generate_event_frames(positive_event_array, negative_event_array, window_len
     return frames
 
 
-def generate_fixed_num_events_frames(positive_event_array, negative_event_array, total_frames=20, img_shape=(34, 34)):
+def gen_extremities(x_data_pos, y_data_pos, x_data_neg, y_data_neg,
+                    current_i, i, current_j, j):
+    """
+    Figures out the edges (min, max extremities) of a frame based on event positions.
+    :param x_data_pos:
+    :param y_data_pos:
+    :param x_data_neg:
+    :param y_data_neg:
+    :param current_i:
+    :param i:
+    :param current_j:
+    :param j:
+    :return:
+    """
+    pos_mn_x = min(x_data_pos[current_i:i])
+    pos_mn_y = min(y_data_pos[current_i:i])
+    pos_mx_x = max(x_data_pos[current_i:i])
+    pos_mx_y = max(y_data_pos[current_i:i])
 
+    pos_overall_x = ((pos_mx_x - pos_mn_x) / 2) + pos_mn_x
+    pos_overall_y = ((pos_mx_y - pos_mn_y) / 2) + pos_mn_y
+
+    neg_mn_x = min(x_data_neg[current_j:j])
+    neg_mn_y = min(y_data_neg[current_j:j])
+    neg_mx_x = max(x_data_neg[current_j:j])
+    neg_mx_y = max(y_data_neg[current_j:j])
+
+    len_x = max(pos_mx_x, neg_mx_x) - min(pos_mn_x, neg_mn_x)
+    len_y = max(pos_mx_y, neg_mx_y) - min(pos_mn_y, neg_mn_y)
+
+    neg_overall_x = ((neg_mx_x - neg_mn_x) / 2) + neg_mn_x
+    neg_overall_y = ((neg_mx_y - neg_mn_y) / 2) + neg_mn_y
+
+    overall_x = int((pos_overall_x + neg_overall_x) / 2)
+    overall_y = int((pos_overall_y + neg_overall_y) / 2)
+
+    return len_x, len_y, overall_x, overall_y
+
+
+def generate_cropped_frames(len_arr_x, len_arr_y, frames, center_indices):
+    """
+    Creates the cropped frames, their positions and the average centers, as explained in 'generate_fixed_num_events_frames'.
+    :param len_arr_x:
+    :param len_arr_y:
+    :param frames:
+    :param center_indices:
+    :return:
+    """
+    mean_len_x = statistics.mean(len_arr_x)
+    mean_len_y = statistics.mean(len_arr_y)
+    hx, hy = math.ceil(mean_len_x / 2), math.ceil(mean_len_y / 2)
+
+    cropped_frames, cropping_positions = [], []
+    for ind, frame in enumerate(frames):
+        (cx, cy) = center_indices[ind]
+        x0, x1, y0, y1 = cx - hx, cx + hx, cy - hy, cy + hy
+        # # Add purple corners
+        # print(cx, cy, hx, hy)
+        # frame[y0][x0] = (255, 0, 255)
+        # frame[y0][x1] = (255, 0, 255)
+        # frame[y1][x0] = (255, 0, 255)
+        # frame[y1][x1] = (255, 0, 255)
+
+        cropped = frame[y0: y1 + 1, x0: x1 + 1]
+        cropped_frames.append(cropped)
+        cropping_positions.append((y0, y1 + 1, x0, x1 + 1))
+
+    return cropped_frames, hx, hy, cropping_positions
+
+
+def generate_fixed_num_events_frames(positive_event_array, negative_event_array, total_frames=20, img_shape=(34, 34)):
+    """
+    Generates event frames with varying amount of events based on the total number of frames.
+    Positive and negative events do not interfere with each other's amount for each frame.
+    For each frame it also figures out where the center is and returns
+    a fixed sized frame based on the average size of an element.
+    :param positive_event_array:
+    :param negative_event_array:
+    :param total_frames:
+    :param img_shape:
+    :return:
+    """
     img_height, img_width = img_shape
 
     frames = []
@@ -92,27 +172,8 @@ def generate_fixed_num_events_frames(positive_event_array, negative_event_array,
             current_frame[y][x] = (0, 0, 255)   # Red
             j += 1
 
-        pos_mn_x = min(x_data_pos[current_i:i])
-        pos_mn_y = min(y_data_pos[current_i:i])
-        pos_mx_x = max(x_data_pos[current_i:i])
-        pos_mx_y = max(y_data_pos[current_i:i])
-
-        pos_overall_x = ((pos_mx_x - pos_mn_x) / 2) + pos_mn_x
-        pos_overall_y = ((pos_mx_y - pos_mn_y) / 2) + pos_mn_y
-
-        neg_mn_x = min(x_data_neg[current_j:j])
-        neg_mn_y = min(y_data_neg[current_j:j])
-        neg_mx_x = max(x_data_neg[current_j:j])
-        neg_mx_y = max(y_data_neg[current_j:j])
-
-        len_x = max(pos_mx_x, neg_mx_x) - min(pos_mn_x, neg_mn_x)
-        len_y = max(pos_mx_y, neg_mx_y) - min(pos_mn_y, neg_mn_y)
-
-        neg_overall_x = ((neg_mx_x - neg_mn_x) / 2) + neg_mn_x
-        neg_overall_y = ((neg_mx_y - neg_mn_y) / 2) + neg_mn_y
-
-        overall_x = int((pos_overall_x + neg_overall_x) / 2)
-        overall_y = int((pos_overall_y + neg_overall_y) / 2)
+        len_x, len_y, overall_x, overall_y = \
+            gen_extremities(x_data_pos, y_data_pos, x_data_neg, y_data_neg, current_i, i, current_j, j)
 
         len_arr_x.append(len_x)
         len_arr_y.append(len_y)
@@ -123,24 +184,9 @@ def generate_fixed_num_events_frames(positive_event_array, negative_event_array,
 
         frames.append(current_frame)
 
-    mean_len_x = statistics.mean(len_arr_x)
-    mean_len_y = statistics.mean(len_arr_y)
-    hx, hy = math.ceil(mean_len_x/2), math.ceil(mean_len_y/2)
+    cropped_frames, hx, hy, cropping_positions = \
+        generate_cropped_frames(len_arr_x, len_arr_y, frames, center_indices)
 
-    cropped_frames, cropping_positions = [], []
-    for ind, frame in enumerate(frames):
-        (cx, cy) = center_indices[ind]
-        x0, x1, y0, y1 = cx - hx, cx + hx, cy - hy, cy + hy
-        # # Add purple corners
-        # print(cx, cy, hx, hy)
-        # frame[y0][x0] = (255, 0, 255)
-        # frame[y0][x1] = (255, 0, 255)
-        # frame[y1][x0] = (255, 0, 255)
-        # frame[y1][x1] = (255, 0, 255)
-
-        cropped = frame[y0: y1 + 1, x0: x1 + 1]
-        cropped_frames.append(cropped)
-        cropping_positions.append((y0, y1 + 1, x0, x1 + 1))
     # print(frame.shape)
     # print(hx * 2 + 1, hy * 2 + 1, x1 + 1 - x0, y1 + 1 - y0)
     return frames, cropped_frames, hx * 2 + 1, hy * 2 + 1, cropping_positions

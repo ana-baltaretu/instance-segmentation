@@ -12,6 +12,14 @@ from src.dvs_config import *
 
 NAME = "N-MNIST-DVS"
 
+def normalize(img):
+    img_min = np.min(img)
+    img_max = np.max(img)
+    if img_min == img_max:
+        if img_max == 0:
+            return img
+        return np.ones(img.shape) * 127.5
+    return np.clip((img - img_min) / (img_max - img_min), 0, 1) * 255
 
 class RGBDDataset(ObjectsDataset):
 
@@ -51,21 +59,22 @@ class RGBDDataset(ObjectsDataset):
                     frame_path = os.path.join(frame_dir, 'frame_' + frame_id)
                     depth_path = os.path.join(parent_root, 'depth', 'depth_' + frame_id)
                     mask_path = os.path.join(parent_root, 'mask', 'mask_' + frame_id)
+                    # Maybe save a txt document with number and color and parse it here as target
 
-                    # if not os.path.isfile(depth_path) and not os.path.isfile(mask_path):
-                    #     print('Warning: No DEPTH and MASK found for ' + frame_path)
-                    # if not os.path.isfile(depth_path):
-                    #     print('Warning: No DEPTH found for ' + frame_path)
-                    # elif not os.path.isfile(mask_path):
-                    print(parent_root)
-                    if not os.path.isfile(mask_path):
+                    if not os.path.isfile(depth_path) and not os.path.isfile(mask_path):
+                        print('Warning: No DEPTH and MASK found for ' + frame_path)
+                    if not os.path.isfile(depth_path):
+                        print('Warning: No DEPTH found for ' + frame_path)
+                    elif not os.path.isfile(mask_path):
+                    # print(parent_root)
+                    # if not os.path.isfile(mask_path):
                         print('Warning: No MASK found for ' + frame_path)
                     else:
                         self.add_image(
                             NAME,
                             image_id=count,
                             path=frame_path,
-                            # depth_path=depth_path,
+                            depth_path=depth_path,
                             mask_path=mask_path,
                             width=self.WIDTH,
                             height=self.HEIGHT,
@@ -82,7 +91,8 @@ class RGBDDataset(ObjectsDataset):
         :param mode:
         :return:
         """
-        image = super(ObjectsDataset, self).load_image(image_id, mode="RGB")
+        image = super(ObjectsDataset, self).load_image(image_id, mode="RGBD")
+
         return image
 
     def to_mask(img, instance):
@@ -125,7 +135,7 @@ class RGBDDataset(ObjectsDataset):
             raise ValueError("No instances for image {}".format(mask_path))
 
         # class_ids = np.array([1] * n_instances, dtype=np.int32)
-        class_ids = np.array([0, target])
+        class_ids = np.array([0, target]) # TODO: get from target the value of each mask/number (should be parsed in load)
         return masks, class_ids
 
 if __name__ == '__main__':

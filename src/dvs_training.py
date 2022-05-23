@@ -10,9 +10,9 @@ dataset_train.load('../data/N_MNIST_images', 'training')
 dataset_train.prepare()
 
 # Validation dataset
-dataset_val = RGBDDataset()
-dataset_val.load('../data/N_MNIST_images', 'validation')
-dataset_val.prepare()
+dataset_testing = RGBDDataset()
+dataset_testing.load('../data/N_MNIST_images', 'testing')
+dataset_testing.prepare()
 
 # Load and display random samples
 image_ids = np.random.choice(dataset_train.image_ids, 4)
@@ -50,19 +50,24 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 # Passing layers="heads" freezes all layers except the head
 # layers. You can also pass a regular expression to select
 # which layers to train by name pattern.
-model.train(dataset_train, dataset_val,
+model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE,
             epochs=1,
             layers='heads')
 
-print('Vroom vroom tuning!!!')
+
+print('\n\n---------------------------------------------------------------')
+print('---------------------------------------------------------------')
+print('-------------------- Vroom vroom tuning!!! --------------------')
+print('---------------------------------------------------------------')
+print('---------------------------------------------------------------\n\n')
 
 
 # Fine tune all layers
 # Passing layers="all" trains all layers. You can also
 # pass a regular expression to select which layers to
 # train by name pattern.
-model.train(dataset_train, dataset_val,
+model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE / 10,
             epochs=2,
             layers="all")

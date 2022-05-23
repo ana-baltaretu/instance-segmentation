@@ -10,9 +10,9 @@ dataset_train.load('../data/N_MNIST_images', 'training')
 dataset_train.prepare()
 
 # Testing dataset
-dataset_testing = RGBDDataset()
-dataset_testing.load('../data/N_MNIST_images', 'validation')
-dataset_testing.prepare()
+dataset_validation = RGBDDataset()
+dataset_validation.load('../data/N_MNIST_images', 'validation')
+dataset_validation.prepare()
 
 class InferenceConfig(DvsConfig):
     GPU_COUNT = 1
@@ -38,9 +38,9 @@ model.load_weights(model_path, by_name=True)
 
 for i in range(20):
     # Test on a random image
-    image_id = random.choice(dataset_testing.image_ids)
+    image_id = random.choice(dataset_validation.image_ids)
     original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
-        modellib.load_image_gt(dataset_testing, inference_config,
+        modellib.load_image_gt(dataset_validation, inference_config,
                                image_id) # , use_mini_mask=False
 
     log("original_image", original_image)
