@@ -53,7 +53,7 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE,
             epochs=1,
-            layers='heads')
+            layers='all')
 
 
 print('\n\n---------------------------------------------------------------')
@@ -75,7 +75,57 @@ model.train(dataset_train, dataset_testing,
 # Save weights
 # Typically not needed because callbacks save after every epoch
 # Uncomment to save manually
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes.h5")
+model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
 model.keras_model.save_weights(model_path)
 
+print(model)
+
 ####################### UNCOMMENT ABOVE WHEN TRAINING #######################
+# model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes.h5")
+# model.keras_model.save_weights(model_path)
+
+
+class InferenceConfig(DvsConfig):
+    GPU_COUNT = 1
+    IMAGES_PER_GPU = 1
+
+inference_config = InferenceConfig()
+
+# Recreate the model in inference mode
+model = modellib.MaskRCNN(mode="inference",
+                          config=inference_config,
+                          model_dir=MODEL_DIR)
+
+# Get path to saved weights
+# Either set a specific path or find last trained weights
+# model_path = os.path.join(ROOT_DIR, ".h5 file name here")
+# model_path = model.find_last()
+
+
+
+# Load trained weights
+print("Loading weights from ", model_path)
+model.load_weights(model_path, by_name=True)
+
+# Test on a random image
+image_id = random.choice(dataset_testing.image_ids)
+original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+    modellib.load_image_gt(dataset_testing, inference_config,
+                           image_id) # , use_mini_mask=False
+
+log("original_image", original_image)
+print(original_image.shape)
+log("image_meta", image_meta)
+log("gt_class_id", gt_class_id)
+log("gt_bbox", gt_bbox)
+log("gt_mask", gt_mask)
+
+visualize.display_instances(original_image, gt_bbox, gt_mask, gt_class_id,
+                            dataset_train.class_names, figsize=(8, 8))
+
+results = model.detect([original_image], verbose=1)
+print(results)
+
+r = results[0]
+visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'],
+                            dataset_train.class_names, scores=r['scores'])

@@ -1,7 +1,7 @@
 import numpy as np
 import statistics
 import math
-
+import cv2
 
 def generate_event_arrays(events, polarity, div_rate=300, mult_rate=100):
     """
@@ -146,50 +146,66 @@ def generate_fixed_num_events_frames(positive_event_array, negative_event_array,
     """
     img_height, img_width = img_shape
 
-    frames = []
-    i, j = 0, 0
-
     x_data_pos, y_data_pos, z_data_pos, time_data_pos = positive_event_array
     x_data_neg, y_data_neg, z_data_neg, time_data_neg = negative_event_array
 
     window_len_pos = int(len(time_data_pos) / total_frames)
     window_len_neg = int(len(time_data_neg) / total_frames)
 
-    len_arr_x, len_arr_y, center_indices = [], [], []
+    frames, len_arr_x, len_arr_y, center_indices, time_frames = [], [], [], [], []
+    i, j = 0, 0
 
     while i < len(time_data_pos) and j < len(time_data_neg):
         current_i, current_j = i, j
         current_frame = np.zeros((img_height, img_width, 3), np.uint8)
+        time_frame = np.zeros((img_height, img_width, 1), np.uint8)
         # current_frame.fill(255)
         while i < len(time_data_pos) and i < current_i + window_len_pos:
             x = x_data_pos[i]
             y = y_data_pos[i]
             current_frame[y][x] = (255, 0, 0)   # Blue
+            time_frame[y][x] = i - current_i    # Latest pixel gets saved
             i += 1
         while j < len(time_data_neg) and j < current_j + window_len_neg:
             x = x_data_neg[j]
             y = y_data_neg[j]
             current_frame[y][x] = (0, 0, 255)   # Red
+            time_frame[y][x] = j - current_j    # Latest pixel gets saved
             j += 1
+
+        # print('positive time:', i, current_i)
+        # print('negative time:', j, current_j)
+
+        equalized_hist = cv2.equalizeHist(time_frame)
+
+        # create a CLAHE object
+        # clahe = cv2.createCLAHE(clipLimit=5.0)
+        # clahe_frame = clahe.apply(time_frame)
+        #
+        # cv2.imshow('time_frame', time_frame)
+        # cv2.imshow('equalized', equalized_hist)
+        # cv2.imshow('clahe_frame', clahe_frame)
+        # cv2.waitKey(200)
 
         len_x, len_y, overall_x, overall_y = \
             gen_extremities(x_data_pos, y_data_pos, x_data_neg, y_data_neg, current_i, i, current_j, j)
 
-        len_arr_x.append(len_x)
-        len_arr_y.append(len_y)
-        center_indices.append((overall_x, overall_y))
-
         # Center of the number
         # current_frame[overall_y][overall_x] = (255, 0, 255)
 
-        frames.append(current_frame)
+        if np.count_nonzero(current_frame) > 50:
+            frames.append(current_frame)
+            len_arr_x.append(len_x)
+            len_arr_y.append(len_y)
+            center_indices.append((overall_x, overall_y))
+            time_frames.append(equalized_hist)
 
     cropped_frames, hx, hy, cropping_positions = \
         generate_cropped_frames(len_arr_x, len_arr_y, frames, center_indices)
 
     # print(frame.shape)
     # print(hx * 2 + 1, hy * 2 + 1, x1 + 1 - x0, y1 + 1 - y0)
-    return frames, cropped_frames, hx * 2 + 1, hy * 2 + 1, cropping_positions
+    return frames, cropped_frames, hx * 2 + 1, hy * 2 + 1, cropping_positions, time_frames
 
 
 

@@ -45,7 +45,7 @@ def generate_masks(dataset_entry):
 
     # TODO Turn this into generation of fixed window length
 
-    frames, cropped_frames, len_x, len_y, cropping_positions \
+    frames, cropped_frames, len_x, len_y, cropping_positions, time_frames \
         = generate_fixed_num_events_frames(positive_event_array, negative_event_array)
 
     gray_summed_mat = create_gray_summed_mat(cropped_frames, len_y, len_x)
@@ -57,6 +57,7 @@ def generate_masks(dataset_entry):
     label_masked_frames = []
     colorized_masks = []
     for ind, frame in enumerate(frames):
+        # print(np.count_nonzero(frame))
         (y0, y1, x0, x1) = cropping_positions[ind]
         result = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
         positioned_colorized_mask = np.zeros(result.shape, np.uint8)
@@ -72,7 +73,7 @@ def generate_masks(dataset_entry):
         label_masked_frames.append(result)
 
     # show_events(colorized_masks, 'colorized_masks/frame_' + str(target) + '_')
-    return frames, colorized_masks, target
+    return frames, colorized_masks, target, time_frames
 
 
 

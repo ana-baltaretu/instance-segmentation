@@ -265,20 +265,20 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 
 ####################### UNCOMMENT THESE WHEN TRAINING #######################
 
-# Train the head branches
-# Passing layers="heads" freezes all layers except the head
-# layers. You can also pass a regular expression to select
-# which layers to train by name pattern.
+# # Train the head branches
+# # Passing layers="heads" freezes all layers except the head
+# # layers. You can also pass a regular expression to select
+# # which layers to train by name pattern.
 # model.train(dataset_train, dataset_val,
 #             learning_rate=config.LEARNING_RATE,
 #             epochs=1,
 #             layers='heads')
-
-
-# Fine tune all layers
-# Passing layers="all" trains all layers. You can also
-# pass a regular expression to select which layers to
-# train by name pattern.
+#
+#
+# # Fine tune all layers
+# # Passing layers="all" trains all layers. You can also
+# # pass a regular expression to select which layers to
+# # train by name pattern.
 # model.train(dataset_train, dataset_val,
 #             learning_rate=config.LEARNING_RATE / 10,
 #             epochs=2,
@@ -291,7 +291,7 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 # Typically not needed because callbacks save after every epoch
 # Uncomment to save manually
 model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes.h5")
-model.keras_model.save_weights(model_path)
+# model.keras_model.save_weights(model_path)
 
 
 class InferenceConfig(ShapesConfig):
@@ -330,3 +330,34 @@ log("gt_mask", gt_mask)
 
 visualize.display_instances(original_image, gt_bbox, gt_mask, gt_class_id,
                             dataset_train.class_names, figsize=(8, 8))
+
+results = model.detect([original_image], verbose=1)
+print(results)
+
+r = results[0]
+visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'],
+                            dataset_train.class_names, scores=r['scores'])
+
+
+# ########## EVALUATION
+#
+# # Compute VOC-Style mAP @ IoU=0.5
+# # Running on 10 images. Increase for better accuracy.
+# image_ids = np.random.choice(dataset_validation.image_ids, 10)
+# APs = []
+# for image_id in image_ids:
+#     # Load image and ground truth data
+#     image, image_meta, gt_class_id, gt_bbox, gt_mask = \
+#         modellib.load_image_gt(dataset_validation, inference_config,
+#                                image_id)
+#     molded_images = np.expand_dims(modellib.mold_image(image, inference_config), 0)
+#     # Run object detection
+#     results = model.detect([image], verbose=0)
+#     r = results[0]
+#     # Compute AP
+#     AP, precisions, recalls, overlaps = \
+#         utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
+#                          r["rois"], r["class_ids"], r["scores"], r['masks'])
+#     APs.append(AP)
+#
+# print("mAP: ", np.mean(APs))

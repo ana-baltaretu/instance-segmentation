@@ -56,11 +56,12 @@ class RGBDDataset(ObjectsDataset):
             for frame in os.listdir(frame_dir):
                 if ind % skip == 0:
                     frame_id = frame[6:]
+                    print(frame_id)
                     frame_path = os.path.join(frame_dir, 'frame_' + frame_id)
                     depth_path = os.path.join(parent_root, 'depth', 'depth_' + frame_id)
                     mask_path = os.path.join(parent_root, 'mask', 'mask_' + frame_id)
                     # Maybe save a txt document with number and color and parse it here as target
-
+                    print(depth_path)
                     if not os.path.isfile(depth_path) and not os.path.isfile(mask_path):
                         print('Warning: No DEPTH and MASK found for ' + frame_path)
                     if not os.path.isfile(depth_path):
@@ -86,14 +87,33 @@ class RGBDDataset(ObjectsDataset):
 
     def load_image(self, image_id, mode="RGBD"):
         """
-        TODO: Implement!
+        Loads each image with it's depth as the Alpha channel
         :param image_id:
         :param mode:
         :return:
         """
-        image = super(ObjectsDataset, self).load_image(image_id, mode="RGBD")
+        image = super().load_image(image_id)
+        if mode == "RGBD":
+            depth = skimage.io.imread(self.image_info[image_id]['depth_path'])
+            depth = normalize(depth)
+            rgbd = np.dstack((image, depth))
+            ret = rgbd
+        else:
+            ret = image
 
-        return image
+        # print(ret.shape)
+        return ret
+
+    # def load_image(self, image_id, mode="RGBD"):
+    #     """
+    #     TODO: Implement!
+    #     :param image_id:
+    #     :param mode:
+    #     :return:
+    #     """
+    #     image = super(ObjectsDataset, self).load_image(image_id, mode="RGBD")
+    #     print(image.shape)
+    #     return image
 
     def to_mask(img, instance):
         return (img == instance).astype(np.uint8)

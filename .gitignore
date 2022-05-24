@@ -27,4 +27,5 @@ src/frames/
 *.png
 
 logs/
+temp_logs/
 *.h5

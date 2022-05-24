@@ -1,4 +1,7 @@
+import numpy as np
+
 from src.my_label_generation import *
+import random
 
 
 def split_train_test_validation(input_path, output_path, cleanup=False, train_data_percentage=0.8):
@@ -66,28 +69,36 @@ def split_train_test_validation(input_path, output_path, cleanup=False, train_da
 def save_images(chosen_directory, dataset, skip, train_data_percentage=1, secondary_chosen_directory=''):
     for i, entry in enumerate(dataset):
         if i % skip == 0:
-            frames, colorized_masks, target = generate_masks(entry)
+            frames, colorized_masks, target, time_frames = generate_masks(entry)
 
-            if random.random() < train_data_percentage:
-                target_path = os.path.join(chosen_directory, str(target))
-            else:
-                target_path = os.path.join(secondary_chosen_directory, str(target))
+            if len(frames) > 3:
+                smaller_sample = random.sample(range(0, len(frames)), 3)
 
-            print(target_path)
-
-            if os.path.exists(target_path) is False:
-                os.mkdir(target_path)
-                if os.path.exists(target_path + '/frame/') is False:
-                    os.mkdir(target_path + '/frame/')
-                if os.path.exists(target_path + '/mask/') is False:
-                    os.mkdir(target_path + '/mask/')
-                if os.path.exists(target_path + '/depth/') is False:
-                    os.mkdir(target_path + '/depth/')
+                frames = np.array(frames)[smaller_sample]
+                colorized_masks = np.array(colorized_masks)[smaller_sample]
+                time_frames = np.array(time_frames)[smaller_sample]
 
             for j, frame in enumerate(frames):
+                if random.random() < train_data_percentage:
+                    target_path = os.path.join(chosen_directory, str(target))
+                else:
+                    target_path = os.path.join(secondary_chosen_directory, str(target))
+
+                # print(target_path)
+
+                if os.path.exists(target_path) is False:
+                    os.mkdir(target_path)
+                    if os.path.exists(target_path + '/frame/') is False:
+                        os.mkdir(target_path + '/frame/')
+                    if os.path.exists(target_path + '/mask/') is False:
+                        os.mkdir(target_path + '/mask/')
+                    if os.path.exists(target_path + '/depth/') is False:
+                        os.mkdir(target_path + '/depth/')
+
                 cv2.imwrite(target_path + '/frame/frame_' + str(i) + '_' + str(j) + '.png', frame)
                 cv2.imwrite(target_path + '/mask/mask_' + str(i) + '_' + str(j) + '.png', colorized_masks[j])
-                # cv2.imwrite(target_path + '/depth/drepth_' + str(i) + '_' + str(j) + '.png', depth[j])
+                # Save time as depth images
+                cv2.imwrite(target_path + '/depth/depth_' + str(i) + '_' + str(j) + '.png', time_frames[j])
 
 
 def generate_rgbd_images_and_masks(train_dataset, test_dataset, output_path, cleanup=False, skip=1000):
