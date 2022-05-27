@@ -18,12 +18,12 @@ config.display()
 
 # Training dataset
 dataset_train = RGBDDataset()
-dataset_train.load('../data/N_MNIST_images', 'training')
+dataset_train.load('../data/N_MNIST_images_all', 'training')
 dataset_train.prepare()
 
 # Testing dataset
 dataset_validation = RGBDDataset()
-dataset_validation.load('../data/N_MNIST_images', 'validation')
+dataset_validation.load('../data/N_MNIST_images_all', 'validation')
 dataset_validation.prepare()
 
 class InferenceConfig(DvsConfig):
@@ -82,25 +82,24 @@ for i in range(5):
 
 ########## EVALUATION
 
-# Compute VOC-Style mAP @ IoU=0.5
-# Running on 10 images. Increase for better accuracy.
-image_ids = np.random.choice(dataset_validation.image_ids, 10)
-APs = []
-for image_id in image_ids:
-    # Load image and ground truth data
-    image, image_meta, gt_class_id, gt_bbox, gt_mask = \
-        modellib.load_image_gt(dataset_validation, inference_config,
-                               image_id)
-    molded_images = np.expand_dims(modellib.mold_image(image, inference_config), 0)
-    # Run object detection
-    results = model.detect([image], verbose=0)
-    r = results[0]
-    # Compute AP
-    AP, precisions, recalls, overlaps = \
-        utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
-                         r["rois"], r["class_ids"], r["scores"], r['masks'])
-    APs.append(AP)
-
-print("mAP: ", np.mean(APs))
+# # Compute VOC-Style mAP @ IoU=0.5
+# image_ids = np.random.choice(dataset_validation.image_ids, 360)
+# APs = []
+# for image_id in image_ids:
+#     # Load image and ground truth data
+#     image, image_meta, gt_class_id, gt_bbox, gt_mask = \
+#         modellib.load_image_gt(dataset_validation, inference_config,
+#                                image_id)
+#     molded_images = np.expand_dims(modellib.mold_image(image, inference_config), 0)
+#     # Run object detection
+#     results = model.detect([image], verbose=0)
+#     r = results[0]
+#     # Compute AP
+#     AP, precisions, recalls, overlaps = \
+#         utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
+#                          r["rois"], r["class_ids"], r["scores"], r['masks'], iou_threshold=0)
+#     APs.append(AP)
+#
+# print("mAP: ", np.mean(APs))
 
 # visualize.display_differences()

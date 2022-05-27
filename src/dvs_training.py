@@ -6,16 +6,16 @@ config.display()
 
 # Training dataset
 dataset_train = RGBDDataset()
-dataset_train.load('../data/N_MNIST_images', 'training')
+dataset_train.load('../data/N_MNIST_images_all', 'training')
 dataset_train.prepare()
 
 # Validation dataset
 dataset_testing = RGBDDataset()
-dataset_testing.load('../data/N_MNIST_images', 'testing')
+dataset_testing.load('../data/N_MNIST_images_all', 'testing')
 dataset_testing.prepare()
 
 # Load and display random samples
-image_ids = np.random.choice(dataset_train.image_ids, 4)
+image_ids = np.random.choice(dataset_train.image_ids, 20)
 for image_id in image_ids:
     image = dataset_train.load_image(image_id)
     mask, class_ids = dataset_train.load_mask(image_id)
@@ -26,7 +26,7 @@ model = modellib.MaskRCNN(mode="training", config=config,
                           model_dir=MODEL_DIR)
 
 # Which weights to start with?
-init_with = "coco"  # imagenet, coco, or last
+init_with = "last"  # imagenet, coco, last, none
 
 if init_with == "imagenet":
     model.load_weights(model.get_imagenet_weights(), by_name=True)
@@ -40,6 +40,8 @@ elif init_with == "coco":
 elif init_with == "last":
     # Load the last model you trained and continue training
     model.load_weights(model.find_last(), by_name=True)
+elif init_with == "none":
+    print('Not loading any weights!')
 
 from warnings import filterwarnings
 filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` is a deprecated alias')
@@ -50,10 +52,10 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 # Passing layers="heads" freezes all layers except the head
 # layers. You can also pass a regular expression to select
 # which layers to train by name pattern.
-model.train(dataset_train, dataset_testing,
-            learning_rate=config.LEARNING_RATE,
-            epochs=1,
-            layers='all')
+# model.train(dataset_train, dataset_testing,
+#             learning_rate=config.LEARNING_RATE,
+#             epochs=10,
+#             layers='heads')
 
 
 print('\n\n---------------------------------------------------------------')
@@ -69,7 +71,7 @@ print('---------------------------------------------------------------\n\n')
 # train by name pattern.
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=2,
+            epochs=10,
             layers="all")
 
 # Save weights

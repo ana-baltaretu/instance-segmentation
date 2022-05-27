@@ -110,14 +110,18 @@ def generate_cropped_frames(len_arr_x, len_arr_y, frames, center_indices):
     :param center_indices:
     :return:
     """
-    mean_len_x = statistics.mean(len_arr_x)
-    mean_len_y = statistics.mean(len_arr_y)
-    hx, hy = math.ceil(mean_len_x / 2), math.ceil(mean_len_y / 2)
+    if len(len_arr_x) > 0 and len(len_arr_y) > 0:
+        mean_len_x = statistics.mean(len_arr_x)
+        mean_len_y = statistics.mean(len_arr_y)
+        hx, hy = math.ceil(mean_len_x / 2), math.ceil(mean_len_y / 2)
+    else:
+        hx, hy = 0, 0
 
     cropped_frames, cropping_positions = [], []
     for ind, frame in enumerate(frames):
         (cx, cy) = center_indices[ind]
-        x0, x1, y0, y1 = cx - hx, cx + hx, cy - hy, cy + hy
+        x0, x1 = max(0, cx - hx), min(frame.shape[1], cx + hx)
+        y0, y1 = max(0, cy - hy), min(frame.shape[1], cy + hy)
         # # Add purple corners
         # print(cx, cy, hx, hy)
         # frame[y0][x0] = (255, 0, 255)
@@ -193,7 +197,10 @@ def generate_fixed_num_events_frames(positive_event_array, negative_event_array,
         # Center of the number
         # current_frame[overall_y][overall_x] = (255, 0, 255)
 
-        if np.count_nonzero(current_frame) > 50:
+        # print(current_frame.shape[1])
+
+        if np.count_nonzero(current_frame) > 50 \
+                and current_frame.shape[0] > 0 and current_frame.shape[1] > 0:
             frames.append(current_frame)
             len_arr_x.append(len_x)
             len_arr_y.append(len_y)
@@ -202,6 +209,7 @@ def generate_fixed_num_events_frames(positive_event_array, negative_event_array,
 
     cropped_frames, hx, hy, cropping_positions = \
         generate_cropped_frames(len_arr_x, len_arr_y, frames, center_indices)
+
 
     # print(frame.shape)
     # print(hx * 2 + 1, hy * 2 + 1, x1 + 1 - x0, y1 + 1 - y0)

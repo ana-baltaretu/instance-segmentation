@@ -7,11 +7,13 @@ def create_gray_summed_mat(cropped_frames, len_y, len_x):
     gray_summed_mat = cv2.cvtColor(np.zeros((len_y, len_x, 3), np.uint8), cv2.COLOR_BGR2GRAY)
 
     for cropped in cropped_frames:
-        gray_scaled = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
-        x_arr, y_arr = np.where(gray_scaled > 0)
-        for ind, x in enumerate(x_arr):
-            y = y_arr[ind]
-            gray_summed_mat[x][y] += 1
+        # print(cropped.shape)
+        if cropped.shape[0] > 0 and cropped.shape[1] > 0:
+            gray_scaled = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+            x_arr, y_arr = np.where(gray_scaled > 0)
+            for ind, x in enumerate(x_arr):
+                y = y_arr[ind]
+                gray_summed_mat[x][y] += 1
 
     return gray_summed_mat
 
@@ -39,6 +41,7 @@ def generate_masks(dataset_entry):
 
     denoise_transform = tonic.transforms.Denoise(filter_time=5000)
     events_denoised = denoise_transform(my_events)
+    # events_denoised = my_events
 
     positive_event_array = generate_event_arrays(events_denoised, 1)
     negative_event_array = generate_event_arrays(events_denoised, 0)
@@ -67,6 +70,7 @@ def generate_masks(dataset_entry):
         hh -= max(y1 - phh, 0)
         ww -= max(x1 - pww, 0)
         # print(hh, ww, y1-y0, x1-x0)
+        # print(x0, x0+ww)
         positioned_colorized_mask[y0:(y0+hh), x0:(x0+ww)] = colorized_mask[0:hh, 0:ww]
         result = cv2.addWeighted(result, 1, positioned_colorized_mask, 0.5, 0)
         colorized_masks.append(positioned_colorized_mask)

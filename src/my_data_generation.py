@@ -71,8 +71,9 @@ def save_images(chosen_directory, dataset, skip, train_data_percentage=1, second
         if i % skip == 0:
             frames, colorized_masks, target, time_frames = generate_masks(entry)
 
-            if len(frames) > 3:
-                smaller_sample = random.sample(range(0, len(frames)), 3)
+            how_many_to_take = 5
+            if len(frames) > how_many_to_take:
+                smaller_sample = random.sample(range(0, len(frames)), how_many_to_take)
 
                 frames = np.array(frames)[smaller_sample]
                 colorized_masks = np.array(colorized_masks)[smaller_sample]
