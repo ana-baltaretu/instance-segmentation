@@ -1,6 +1,7 @@
 from src.my_visualize import *
 from src.my_util import *
 from src.my_event_frame_generation import *
+from mask_matching import get_mask_for_index_and_label
 
 
 def create_gray_summed_mat(cropped_frames, len_y, len_x):
@@ -18,6 +19,13 @@ def create_gray_summed_mat(cropped_frames, len_y, len_x):
     return gray_summed_mat
 
 
+def color_yellow(image):
+    x, y = np.where(image > 0)
+    colorized_mask = cv2.cvtColor(image, cv2.COLOR_GRAY2BGRA)
+    colorized_mask[x, y] = (0, 255, 255, 255)  # YELLOW
+    return colorized_mask
+
+
 def generate_average_mask(stretched_mat):
     resized = resize_image(stretched_mat, 2000)
     kernel_size = 11
@@ -25,16 +33,14 @@ def generate_average_mask(stretched_mat):
                                                make_kernel(kernel_size)[0], iterations=3, borderType=cv2.BORDER_CONSTANT)
     (thresh, th_gray_summed_mat) = cv2.threshold(closing_gray_summed_mat, 100, 255, cv2.THRESH_BINARY)  # 36
     revert_resize = resize_image(th_gray_summed_mat, 5)
+    colorized_mask = color_yellow(revert_resize)
 
-    x, y = np.where(revert_resize > 0)
-    colorized_mask = cv2.cvtColor(revert_resize, cv2.COLOR_GRAY2BGRA)
-    colorized_mask[x, y] = (0, 255, 255, 255)   # YELLOW
     # show_partial_matrices(closing_gray_summed_mat, stretched_mat, th_gray_summed_mat, revert_resize, colorized_mask)
 
     return colorized_mask
 
 
-def generate_masks(dataset_entry):
+def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_label, mnist_dataset):
     my_events, target = dataset_entry
     # plot_frames_denoised(frame_transform, my_events)
     print(target)
@@ -48,7 +54,7 @@ def generate_masks(dataset_entry):
     positive_event_array = generate_event_arrays(my_events, 1)
     negative_event_array = generate_event_arrays(my_events, 0)
 
-    # TODO Turn this into generation of fixed window length
+    # TODO Turn this into generation of fixed window length - DONE
 
     # frames, cropped_frames, len_x, len_y, cropping_positions, time_frames \
         # = generate_fixed_num_events_frames(positive_event_array, negative_event_array)
@@ -57,10 +63,18 @@ def generate_masks(dataset_entry):
         = generate_event_frames_with_fixed_time_window(positive_event_array_denoised, negative_event_array_denoised,
                                                        positive_event_array, negative_event_array)
 
-    gray_summed_mat = create_gray_summed_mat(cropped_frames, len_y, len_x)
-    stretched_mat = contrast_stretch(gray_summed_mat, len(cropped_frames))
+    # Get mask based on index and target
 
-    colorized_mask = generate_average_mask(stretched_mat)
+    # TODO: replace this with correct mask - DONEE
+    # gray_summed_mat = create_gray_summed_mat(cropped_frames, len_y, len_x)
+    # stretched_mat = contrast_stretch(gray_summed_mat, len(cropped_frames))
+    # colorized_mask = generate_average_mask(stretched_mat)
+    correct_mask = get_mask_for_index_and_label(index - last_saved_index, target,
+                                                mnist_dataset, mask_indices_per_label)
+    colorized_mask = color_yellow(correct_mask) # TODO Fix this
+    # cv2.imshow('correct_mask', correct_mask)
+    # cv2.imshow('colorized_mask', colorized_mask)
+    # cv2.waitKey(500)
     # print('Colorized', colorized_mask.shape)
 
     label_masked_frames = []

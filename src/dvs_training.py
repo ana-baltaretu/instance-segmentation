@@ -6,12 +6,12 @@ config.display()
 
 # Training dataset
 dataset_train = RGBDDataset()
-dataset_train.load('../data/N_MNIST_images_all', 'training')
+dataset_train.load('../data/N_MNIST_images_all_proper_mask', 'training')
 dataset_train.prepare()
 
 # Validation dataset
 dataset_testing = RGBDDataset()
-dataset_testing.load('../data/N_MNIST_images_all', 'testing')
+dataset_testing.load('../data/N_MNIST_images_all_proper_mask', 'testing')
 dataset_testing.prepare()
 
 # Load and display random samples
@@ -48,15 +48,20 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 
 ####################### UNCOMMENT THESE WHEN TRAINING #######################
 
-# Train the head branches
-# Passing layers="heads" freezes all layers except the head
-# layers. You can also pass a regular expression to select
-# which layers to train by name pattern.
-model.train(dataset_train, dataset_testing,
-            learning_rate=config.LEARNING_RATE,
-            epochs=3,
-            layers='heads')
+# # Train the head branches
+# # Passing layers="heads" freezes all layers except the head
+# # layers. You can also pass a regular expression to select
+# # which layers to train by name pattern.
+# model.train(dataset_train, dataset_testing,
+#             learning_rate=config.LEARNING_RATE,
+#             epochs=3,
+#             layers='heads')
 
+# # Save weights
+# # Typically not needed because callbacks save after every epoch
+# # Uncomment to save manually
+# model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
+# model.keras_model.save_weights(model_path)
 
 print('\n\n---------------------------------------------------------------')
 print('---------------------------------------------------------------')
@@ -69,6 +74,7 @@ print('---------------------------------------------------------------\n\n')
 # Passing layers="all" trains all layers. You can also
 # pass a regular expression to select which layers to
 # train by name pattern.
+
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE / 10,
             epochs=10,

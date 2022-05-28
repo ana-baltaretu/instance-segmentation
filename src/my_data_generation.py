@@ -2,6 +2,7 @@ import numpy as np
 
 from src.my_label_generation import *
 import random
+from keras.datasets import mnist
 
 
 def split_train_test_validation(input_path, output_path, cleanup=False, train_data_percentage=0.8):
@@ -66,10 +67,17 @@ def split_train_test_validation(input_path, output_path, cleanup=False, train_da
                 # print('testing')
 
 
-def save_images(chosen_directory, dataset, skip, train_data_percentage=1, secondary_chosen_directory=''):
+def save_images(chosen_directory, dataset, skip, mask_indices_per_label, mnist_dataset, train_data_percentage=1, secondary_chosen_directory=''):
+    last_saved_target, last_saved_index = 0, 0
+
     for i, entry in enumerate(dataset):
+        _, current_target = entry
+        if current_target != last_saved_target:
+            last_saved_index = i
+            last_saved_target = current_target
+
         if i % skip == 0:
-            frames, colorized_masks, target, time_frames = generate_masks(entry)
+            frames, colorized_masks, target, time_frames = generate_masks(entry, i, last_saved_index, mask_indices_per_label, mnist_dataset)
 
             how_many_to_take = 5
             if len(frames) > how_many_to_take:
@@ -79,12 +87,13 @@ def save_images(chosen_directory, dataset, skip, train_data_percentage=1, second
                 colorized_masks = np.array(colorized_masks)[smaller_sample]
                 time_frames = np.array(time_frames)[smaller_sample]
 
-            for j, frame in enumerate(frames):
-                if random.random() < train_data_percentage:
-                    target_path = os.path.join(chosen_directory, str(target))
-                else:
-                    target_path = os.path.join(secondary_chosen_directory, str(target))
+            # Pick training / testing directory before including any of the frames
+            if random.random() < train_data_percentage:
+                target_path = os.path.join(chosen_directory, str(target))
+            else:
+                target_path = os.path.join(secondary_chosen_directory, str(target))
 
+            for j, frame in enumerate(frames):
                 # print(target_path)
 
                 if os.path.exists(target_path) is False:
@@ -118,7 +127,17 @@ def generate_rgbd_images_and_masks(train_dataset, test_dataset, output_path, cle
     testing_path = os.path.join(output_path, 'testing')
     validation_path = os.path.join(output_path, 'validation')
 
+    (train_X, train_y), (test_X, test_y) = mnist.load_data()
+
+    labels = range(0, 10)
+    mask_indices_per_label_train, mask_indices_per_label_test = [], []
+    for label in labels:
+        indices_with_this_label_train = np.where(train_y == label)
+        mask_indices_per_label_train.append(indices_with_this_label_train)
+        indices_with_this_label_test = np.where(test_y == label)
+        mask_indices_per_label_test.append(indices_with_this_label_test)
+
     print('--------------------------- Validation ---------------------------')
-    save_images(validation_path, test_dataset, skip)
+    save_images(validation_path, test_dataset, skip, mask_indices_per_label_test, test_X)
     print('--------------------------- Train&Test ---------------------------')
-    save_images(training_path, train_dataset, skip, train_data_percentage=0.8, secondary_chosen_directory=testing_path)
+    save_images(training_path, train_dataset, skip, mask_indices_per_label_train, train_X, train_data_percentage=0.8, secondary_chosen_directory=testing_path)
