@@ -43,13 +43,19 @@ def generate_masks(dataset_entry):
     events_denoised = denoise_transform(my_events)
     # events_denoised = my_events
 
-    positive_event_array = generate_event_arrays(events_denoised, 1)
-    negative_event_array = generate_event_arrays(events_denoised, 0)
+    positive_event_array_denoised = generate_event_arrays(events_denoised, 1)
+    negative_event_array_denoised = generate_event_arrays(events_denoised, 0)
+    positive_event_array = generate_event_arrays(my_events, 1)
+    negative_event_array = generate_event_arrays(my_events, 0)
 
     # TODO Turn this into generation of fixed window length
 
+    # frames, cropped_frames, len_x, len_y, cropping_positions, time_frames \
+        # = generate_fixed_num_events_frames(positive_event_array, negative_event_array)
+
     frames, cropped_frames, len_x, len_y, cropping_positions, time_frames \
-        = generate_fixed_num_events_frames(positive_event_array, negative_event_array)
+        = generate_event_frames_with_fixed_time_window(positive_event_array_denoised, negative_event_array_denoised,
+                                                       positive_event_array, negative_event_array)
 
     gray_summed_mat = create_gray_summed_mat(cropped_frames, len_y, len_x)
     stretched_mat = contrast_stretch(gray_summed_mat, len(cropped_frames))
@@ -69,6 +75,8 @@ def generate_masks(dataset_entry):
         # print(y1, phh, x1, pww)
         hh -= max(y1 - phh, 0)
         ww -= max(x1 - pww, 0)
+        hh = min(hh, phh - y0)
+        ww = min(ww, pww - y0)
         # print(hh, ww, y1-y0, x1-x0)
         # print(x0, x0+ww)
         positioned_colorized_mask[y0:(y0+hh), x0:(x0+ww)] = colorized_mask[0:hh, 0:ww]

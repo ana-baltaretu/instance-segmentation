@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     split_train_test_validation('../data/NMNIST', '../data/N_MNIST', cleanup=False, train_data_percentage=0.8)
 
-    generate_rgbd_images_and_masks(train_dataset, test_dataset, '../data/N_MNIST_images', cleanup=False, skip=301)
+    generate_rgbd_images_and_masks(train_dataset, test_dataset, '../data/N_MNIST_images_all', cleanup=True, skip=50)
     # TODO: uncomment above
 
     # #                0,  1,    2,    3,    4,    5,    6,    7,    8,    9

@@ -136,6 +136,84 @@ def generate_cropped_frames(len_arr_x, len_arr_y, frames, center_indices):
     return cropped_frames, hx, hy, cropping_positions
 
 
+def generate_event_frames_with_fixed_time_window(positive_event_array_denoised, negative_event_array_denoised,
+                                                 positive_event_array, negative_event_array,
+                                                 window_len=20, img_shape=(34, 34)):
+    img_height, img_width = img_shape
+
+    x_data_pos_den, y_data_pos_den, _, time_data_pos_den = positive_event_array_denoised
+    x_data_neg_den, y_data_neg_den, _, time_data_neg_den = negative_event_array_denoised
+
+    x_data_pos, y_data_pos, _, time_data_pos = positive_event_array
+    x_data_neg, y_data_neg, _, time_data_neg = negative_event_array
+
+    frames, len_arr_x, len_arr_y, center_indices, time_frames, frames_den = [], [], [], [], [], []
+    i_den, j_den, i, j = 0, 0, 0, 0
+
+    while i_den < len(time_data_pos_den) and j_den < len(time_data_neg_den):
+        current_i_den, current_j_den, current_i, current_j = i_den, j_den, i, j
+        time_frame = np.zeros((img_height, img_width, 1), np.uint8)     # Only need the one WITH noise - DONE
+        current_time = min(time_data_pos_den[i_den], time_data_neg_den[j_den])
+        current_frame = np.zeros((img_height, img_width, 3), np.uint8)  # Only need the one WITH noise - DONE
+        current_frame_den = np.zeros((img_height, img_width, 3), np.uint8)
+
+        while i_den < len(time_data_pos_den) and time_data_pos_den[i_den] < current_time + window_len:
+            x = x_data_pos_den[i_den]
+            y = y_data_pos_den[i_den]
+            current_frame_den[y][x] = (255, 0, 0)  # Blue
+            i_den += 1
+        while j_den < len(time_data_neg_den) and time_data_neg_den[j_den] < current_time + window_len:
+            x = x_data_neg_den[j_den]
+            y = y_data_neg_den[j_den]
+            current_frame_den[y][x] = (0, 0, 255)  # Red
+            j_den += 1
+
+        # Time noised
+        while i < len(time_data_pos_den) and time_data_pos_den[i] < current_time + window_len:
+            x = x_data_pos[i]
+            y = y_data_pos[i]
+            current_frame[y][x] = (255, 0, 0)   # Blue
+            time_frame[y][x] = i - current_i  # Latest pixel gets saved
+            i += 1
+        while j < len(time_data_neg_den) and time_data_neg_den[j] < current_time + window_len:
+            x = x_data_neg[j]
+            y = y_data_neg[j]
+            current_frame[y][x] = (0, 0, 255)   # Red
+            time_frame[y][x] = j - current_j  # Latest pixel gets saved
+            j += 1
+
+        equalized_hist = cv2.equalizeHist(time_frame)
+
+        # print('nonzero:', np.count_nonzero(current_frame))
+        # print(current_j, j)
+        # print(current_j_den, j_den)
+
+        if np.count_nonzero(current_frame) > 100 \
+                and current_frame.shape[0] > 0 and current_frame.shape[1] > 0:
+            len_x, len_y, overall_x, overall_y = \
+                gen_extremities(x_data_pos_den, y_data_pos_den, x_data_neg_den, y_data_neg_den,
+                                current_i_den, i_den, current_j_den, j_den)
+
+            frames.append(current_frame)
+            frames_den.append(current_frame_den)
+            len_arr_x.append(len_x)
+            len_arr_y.append(len_y)
+            center_indices.append((overall_x, overall_y))
+            time_frames.append(equalized_hist)
+
+            # cv2.imshow('equalized_hist', equalized_hist)
+            # cv2.imshow('current_frame', current_frame)
+            # cv2.imshow('current_frame_den', current_frame_den)
+            # cv2.imshow('equalized', equalized_hist)
+            # cv2.imshow('clahe_frame', clahe_frame)
+            # cv2.waitKey(500)
+
+    cropped_frames, hx, hy, cropping_positions = \
+        generate_cropped_frames(len_arr_x, len_arr_y, frames_den, center_indices)   # Only need the one DE-noised
+
+    return frames, cropped_frames, hx * 2 + 1, hy * 2 + 1, cropping_positions, time_frames
+
+
 def generate_fixed_num_events_frames(positive_event_array, negative_event_array, total_frames=20, img_shape=(34, 34)):
     """
     Generates event frames with varying amount of events based on the total number of frames.

@@ -52,10 +52,10 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 # Passing layers="heads" freezes all layers except the head
 # layers. You can also pass a regular expression to select
 # which layers to train by name pattern.
-# model.train(dataset_train, dataset_testing,
-#             learning_rate=config.LEARNING_RATE,
-#             epochs=10,
-#             layers='heads')
+model.train(dataset_train, dataset_testing,
+            learning_rate=config.LEARNING_RATE,
+            epochs=3,
+            layers='heads')
 
 
 print('\n\n---------------------------------------------------------------')
