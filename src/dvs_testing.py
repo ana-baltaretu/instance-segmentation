@@ -18,12 +18,12 @@ config.display()
 
 # Training dataset
 dataset_train = RGBDDataset()
-dataset_train.load('../data/N_MNIST_images_all_proper_mask', 'training')
+dataset_train.load('../data/N_MNIST_images_aligned', 'training')
 dataset_train.prepare()
 
 # Testing dataset
 dataset_validation = RGBDDataset()
-dataset_validation.load('../data/N_MNIST_images_all_proper_mask', 'validation')
+dataset_validation.load('../data/N_MNIST_images_aligned', 'validation')
 dataset_validation.prepare()
 
 class InferenceConfig(DvsConfig):
@@ -53,7 +53,7 @@ print("MODEL")
 # print(model.config.display())
 print('\n\n\n')
 
-for i in range(5):
+for i in range(20):
     # Test on a random image
     image_id = random.choice(dataset_train.image_ids)
     original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
@@ -83,7 +83,7 @@ for i in range(5):
 ########## EVALUATION
 
 # # Compute VOC-Style mAP @ IoU=0.5
-image_ids = np.random.choice(dataset_validation.image_ids, 500)
+image_ids = dataset_validation.image_ids  # np.random.choice(dataset_validation.image_ids, 500)
 APs = []
 for image_id in image_ids:
     # Load image and ground truth data

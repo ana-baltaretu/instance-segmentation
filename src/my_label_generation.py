@@ -1,3 +1,6 @@
+import cv2
+import numpy as np
+
 from src.my_visualize import *
 from src.my_util import *
 from src.my_event_frame_generation import *
@@ -38,6 +41,49 @@ def generate_average_mask(stretched_mat):
     # show_partial_matrices(closing_gray_summed_mat, stretched_mat, th_gray_summed_mat, revert_resize, colorized_mask)
 
     return colorized_mask
+
+
+def mask_placement_correction(y0, y1, x0, x1, mask, frame):
+    position_bw_mask = np.zeros(frame.shape, np.uint8)
+    # print(y0, y1, x0, x1)
+    # print(y1-y0, x1-x0)
+    position_bw_mask[y0:y1, x0:x1] = mask[0:y1-y0, 0:x1-x0]
+    combined = cv2.bitwise_and(frame, position_bw_mask)
+    # cv2.imshow('position_bw_mask', position_bw_mask)
+    # cv2.imshow('combined', combined)
+    initial_max_score = np.count_nonzero(combined)
+    max_score = initial_max_score
+    # print(max_score)
+    # print(x0, y0, x1, y1)
+
+    y0_mx, y1_mx, x0_mx, x1_mx = y0, y1, x0, x1
+    dx = [-1, 0, 1, 1, 1, 0, -1, -1]
+    dy = [-1, -1, -1, 0, 1, 1, 1, 0]
+
+    for d in range(8):
+        x0_new, y0_new = x0 + dx[d], y0 + dy[d]
+        x1_new, y1_new = x1 + dx[d], y1 + dy[d]
+        if x0_new < 0 or y0_new < 0 or x1_new >= frame.shape[1] or y1_new >= frame.shape[0]:
+            continue
+        position_bw_mask_new = np.zeros(frame.shape, np.uint8)
+        position_bw_mask_new[y0_new:y1_new, x0_new:x1_new] = mask[0:y1_new-y0_new, 0:x1_new-x0_new]
+        combined_new = cv2.bitwise_and(frame, position_bw_mask_new)
+        current_score = np.count_nonzero(combined_new)
+        if current_score > max_score:
+            max_score = current_score
+            y0_mx, y1_mx, x0_mx, x1_mx = y0_new, y1_new, x0_new, x1_new
+            # print("new max score:", current_score)
+            # print(y0_new, y1_new, x0_new, x1_new)
+            # cv2.imshow('combined_new', combined_new)
+            # cv2.waitKey(200)
+
+    if max_score > 0:
+        score_difference = (max_score-initial_max_score)/max_score
+        # print('scores:', max_score, initial_max_score, score_difference)
+        if score_difference > 0.02:
+            y0_mx, y1_mx, x0_mx, x1_mx, max_score = mask_placement_correction(y0_mx, y1_mx, x0_mx, x1_mx, mask, frame)
+
+    return y0_mx, y1_mx, x0_mx, x1_mx, max_score
 
 
 def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_label, mnist_dataset):
@@ -84,6 +130,7 @@ def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_labe
         (y0, y1, x0, x1) = cropping_positions[ind]
         result = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
         positioned_colorized_mask = np.zeros(result.shape, np.uint8)
+        new_colorized_mask = np.zeros(result.shape, np.uint8)
         phh, pww, pcc = positioned_colorized_mask.shape
         hh, ww, cc = colorized_mask.shape
         # print(y1, phh, x1, pww)
@@ -93,10 +140,28 @@ def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_labe
         ww = min(ww, pww - y0)
         # print(hh, ww, y1-y0, x1-x0)
         # print(x0, x0+ww)
-        positioned_colorized_mask[y0:(y0+hh), x0:(x0+ww)] = colorized_mask[0:hh, 0:ww]
+
+        y0, y1, x0, x1, mx_score = \
+            mask_placement_correction(y0, (y0+hh), x0, (x0+ww), correct_mask, frame[:, :, 2])
+
+        new_colorized_mask[y0:y1, x0:x1] = colorized_mask[0:hh, 0:ww]
+        new_result = cv2.addWeighted(result, 1, new_colorized_mask, 0.5, 0)
+
+        positioned_colorized_mask[y0:y1, x0:x1] = colorized_mask[0:hh, 0:ww]
+
         result = cv2.addWeighted(result, 1, positioned_colorized_mask, 0.5, 0)
+
         colorized_masks.append(positioned_colorized_mask)
         label_masked_frames.append(result)
+
+        # cv2.imshow('neg_frame', frame[:, :, 2])
+        # cv2.imshow('positioned_colorized_mask', positioned_colorized_mask)
+
+        # print(frame[:, :, 2].shape)
+        # print(position_bw_mask.shape)
+        # cv2.imshow('masked', result)
+        # cv2.imshow('new_result', new_result)
+        # cv2.waitKey(500)
 
     # show_events(colorized_masks, 'colorized_masks/frame_' + str(target) + '_')
     return frames, colorized_masks, target, time_frames

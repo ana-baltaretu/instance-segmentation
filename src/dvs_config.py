@@ -78,6 +78,16 @@ class DvsConfig(Config):
     # From: https://github.com/orestis-z/mask-rcnn-rgbd/blob/d590e0f5085f8cbe895a6698e284426fd0116aa4/instance_segmentation/sceneNet/train.py#L66-L85
     MEAN_PIXEL = np.array([123.7, 116.8, 103.9, 127.5]) #
 
+    # Loss weights for more precise optimization.
+    # Can be used for R-CNN training setup.
+    LOSS_WEIGHTS = {
+        "rpn_class_loss": 1.,
+        "rpn_bbox_loss": 1.,
+        "mrcnn_class_loss": 1.,
+        "mrcnn_bbox_loss": 1.,
+        "mrcnn_mask_loss": 5.
+    }
+
 
 config = DvsConfig()
 config.display()

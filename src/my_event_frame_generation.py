@@ -76,27 +76,32 @@ def gen_extremities(x_data_pos, y_data_pos, x_data_neg, y_data_neg,
     :param j:
     :return:
     """
-    pos_mn_x = min(x_data_pos[current_i:i])
-    pos_mn_y = min(y_data_pos[current_i:i])
-    pos_mx_x = max(x_data_pos[current_i:i])
-    pos_mx_y = max(y_data_pos[current_i:i])
+    # pos_mn_x = min(x_data_pos[current_i:i])
+    # pos_mn_y = min(y_data_pos[current_i:i])
+    # pos_mx_x = max(x_data_pos[current_i:i])
+    # pos_mx_y = max(y_data_pos[current_i:i])
 
-    pos_overall_x = ((pos_mx_x - pos_mn_x) / 2) + pos_mn_x
-    pos_overall_y = ((pos_mx_y - pos_mn_y) / 2) + pos_mn_y
+    # pos_overall_x = ((pos_mx_x - pos_mn_x) / 2) + pos_mn_x
+    # pos_overall_y = ((pos_mx_y - pos_mn_y) / 2) + pos_mn_y
 
     neg_mn_x = min(x_data_neg[current_j:j])
     neg_mn_y = min(y_data_neg[current_j:j])
     neg_mx_x = max(x_data_neg[current_j:j])
     neg_mx_y = max(y_data_neg[current_j:j])
 
-    len_x = max(pos_mx_x, neg_mx_x) - min(pos_mn_x, neg_mn_x)
-    len_y = max(pos_mx_y, neg_mx_y) - min(pos_mn_y, neg_mn_y)
+    # len_x = max(pos_mx_x, neg_mx_x) - min(pos_mn_x, neg_mn_x)
+    # len_y = max(pos_mx_y, neg_mx_y) - min(pos_mn_y, neg_mn_y)
+
+    len_x = neg_mx_x - neg_mn_x
+    len_y = neg_mx_y - neg_mn_y
 
     neg_overall_x = ((neg_mx_x - neg_mn_x) / 2) + neg_mn_x
     neg_overall_y = ((neg_mx_y - neg_mn_y) / 2) + neg_mn_y
 
-    overall_x = int((pos_overall_x + neg_overall_x) / 2)
-    overall_y = int((pos_overall_y + neg_overall_y) / 2)
+    # overall_x = int((pos_overall_x + neg_overall_x) / 2)
+    # overall_y = int((pos_overall_y + neg_overall_y) / 2)
+    overall_x = int(neg_overall_x)
+    overall_y = int(neg_overall_y)
 
     return len_x, len_y, overall_x, overall_y
 
@@ -132,6 +137,8 @@ def generate_cropped_frames(len_arr_x, len_arr_y, frames, center_indices):
         cropped = frame[y0: y1 + 1, x0: x1 + 1]
         cropped_frames.append(cropped)
         cropping_positions.append((y0, y1 + 1, x0, x1 + 1))
+        # cv2.imshow('frame', frame)
+        # cv2.waitKey(500)
 
     return cropped_frames, hx, hy, cropping_positions
 
@@ -193,7 +200,6 @@ def generate_event_frames_with_fixed_time_window(positive_event_array_denoised, 
             len_x, len_y, overall_x, overall_y = \
                 gen_extremities(x_data_pos_den, y_data_pos_den, x_data_neg_den, y_data_neg_den,
                                 current_i_den, i_den, current_j_den, j_den)
-
             frames.append(current_frame)
             frames_den.append(current_frame_den)
             len_arr_x.append(len_x)
