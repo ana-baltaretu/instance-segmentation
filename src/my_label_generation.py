@@ -91,14 +91,24 @@ def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_labe
     # plot_frames_denoised(frame_transform, my_events)
     print(target)
 
+    if index == 9000:
+        alex_events = np.load('../data/alex_data/index_1000.npy')
+        print(alex_events)
+
+        positive_event_array = generate_event_arrays(alex_events, 1)
+        negative_event_array = generate_event_arrays(alex_events, 0)
+    else:
+        positive_event_array = generate_event_arrays(my_events, 1)
+        negative_event_array = generate_event_arrays(my_events, 0)
+
     denoise_transform = tonic.transforms.Denoise(filter_time=5000)
     events_denoised = denoise_transform(my_events)
     # events_denoised = my_events
 
     positive_event_array_denoised = generate_event_arrays(events_denoised, 1)
     negative_event_array_denoised = generate_event_arrays(events_denoised, 0)
-    positive_event_array = generate_event_arrays(my_events, 1)
-    negative_event_array = generate_event_arrays(my_events, 0)
+
+
 
     # TODO Turn this into generation of fixed window length - DONE
 

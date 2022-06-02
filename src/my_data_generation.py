@@ -77,6 +77,7 @@ def save_images(chosen_directory, dataset, skip, mask_indices_per_label, mnist_d
             last_saved_target = current_target
 
         if i % skip == 0:
+            print(i)
             frames, colorized_masks, target, time_frames = generate_masks(entry, i, last_saved_index, mask_indices_per_label, mnist_dataset)
 
             how_many_to_take = 5
@@ -140,4 +141,4 @@ def generate_rgbd_images_and_masks(train_dataset, test_dataset, output_path, cle
     print('--------------------------- Validation ---------------------------')
     save_images(validation_path, test_dataset, skip, mask_indices_per_label_test, test_X)
     print('--------------------------- Train&Test ---------------------------')
-    save_images(training_path, train_dataset, skip, mask_indices_per_label_train, train_X, train_data_percentage=0.8, secondary_chosen_directory=testing_path)
+    # save_images(training_path, train_dataset, skip, mask_indices_per_label_train, train_X, train_data_percentage=0.8, secondary_chosen_directory=testing_path)
