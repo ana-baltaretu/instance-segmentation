@@ -79,7 +79,7 @@ def save_images(chosen_directory, dataset, skip, mask_indices_per_label, mnist_d
         if i % skip == 0:
             frames, colorized_masks, target, time_frames = generate_masks(entry, i, last_saved_index, mask_indices_per_label, mnist_dataset)
 
-            how_many_to_take = 5
+            how_many_to_take = 10
             if len(frames) > how_many_to_take:
                 smaller_sample = random.sample(range(0, len(frames)), how_many_to_take)
 
