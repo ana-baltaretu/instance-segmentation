@@ -5,9 +5,9 @@ import os, sys
 import numpy as np
 import skimage.io
 import cv2
-from src.objects_dataset import ObjectsDataset
+from objects_dataset import ObjectsDataset
 
-from src.dvs_config import *
+from dvs_config import *
 
 
 NAME = "N-MNIST-DVS"

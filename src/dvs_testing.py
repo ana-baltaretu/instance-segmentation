@@ -1,5 +1,5 @@
-from src.dvs_config import *
-from src.dvs_dataset import *
+from dvs_config import *
+from dvs_dataset import *
 
 
 def get_ax(rows=1, cols=1, size=8):

@@ -1,5 +1,5 @@
-from src.dvs_config import *
-from src.dvs_dataset import *
+from dvs_config import *
+from dvs_dataset import *
 
 config = DvsConfig()
 config.display()

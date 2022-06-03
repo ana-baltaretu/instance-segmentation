@@ -24,7 +24,7 @@ from snntorch import spikeplot as splt
 from snntorch import utils
 import torch.nn as nn
 
-from src.visualize import plot_frames
+from visualize import plot_frames
 
 from IPython.display import HTML
 

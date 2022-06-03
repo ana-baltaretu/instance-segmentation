@@ -1,9 +1,9 @@
 import numpy as np
 
-from src.my_visualize import *
-from src.my_util import *
-from src.my_event_frame_generation import *
-from src.my_label_generation import *
+from my_visualize import *
+from my_util import *
+from my_event_frame_generation import *
+from my_label_generation import *
 
 from keras.datasets import mnist
 from matplotlib import pyplot
@@ -45,9 +45,9 @@ for label in labels:
     indices_with_this_label_test = np.where(test_y == label)
     mask_indices_per_label_test.append(indices_with_this_label_test)
 
-    print('Label:', label, 'Len:', len(train_y[indices_with_this_label_train]))
-    print(train_y[indices_with_this_label_train])
-    print('Label:', label, 'Len:', len(test_y[indices_with_this_label_test]))
+    # print('Label:', label, 'Len:', len(train_y[indices_with_this_label_train]))
+    # print(train_y[indices_with_this_label_train])
+    # print('Label:', label, 'Len:', len(test_y[indices_with_this_label_test]))
     # print(test_y[indices_with_this_label_test])
 
 # print(len(train_dataset))

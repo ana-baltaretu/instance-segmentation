@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
 
-from src.my_visualize import *
-from src.my_util import *
-from src.my_event_frame_generation import *
+from my_visualize import *
+from my_util import *
+from my_event_frame_generation import *
 from mask_matching import get_mask_for_index_and_label
 
 
@@ -91,15 +91,15 @@ def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_labe
     # plot_frames_denoised(frame_transform, my_events)
     print(target)
 
-    if index == 9000:
-        alex_events = np.load('../data/alex_data/index_1000.npy')
-        print(alex_events)
+    # if index == 9000:
+    #     alex_events = np.load('../data/alex_data/index_1000.npy')
+    #     print(alex_events)
 
-        positive_event_array = generate_event_arrays(alex_events, 1)
-        negative_event_array = generate_event_arrays(alex_events, 0)
-    else:
-        positive_event_array = generate_event_arrays(my_events, 1)
-        negative_event_array = generate_event_arrays(my_events, 0)
+    #     positive_event_array = generate_event_arrays(alex_events, 1)
+    #     negative_event_array = generate_event_arrays(alex_events, 0)
+    # else:
+    positive_event_array = generate_event_arrays(my_events, 1)
+    negative_event_array = generate_event_arrays(my_events, 0)
 
     denoise_transform = tonic.transforms.Denoise(filter_time=5000)
     events_denoised = denoise_transform(my_events)

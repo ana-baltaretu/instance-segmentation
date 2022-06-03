@@ -1,60 +1,45 @@
-from src.my_data_generation import *
+from my_data_generation import *
+# from event-datasets import custom_transforms as ct
+from event_datasets import custom_transforms as ct
 
 import os
-os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
 if __name__ == '__main__':
-    # test_dataset = tonic.datasets.NMNIST(save_to='../data', train=False)
-    # frames, colorized_masks, target, time_frames = generate_masks(test_dataset[5000])
-    # show_events(frames, 'input/frame_' + str(target) + '_')
-    # show_events(time_frames, 'input/time_frame_' + str(target) + '_')
-    # show_events(colorized_masks, 'frames/label_masked_frame' + str(target) + '_')
+    ALEX_ENV = True
+    train_dataset_path = "../data/sorted_NMNIST/train_dataset.npy"
+    test_dataset_path = "../data/sorted_NMNIST/test_dataset.npy"
 
-    # TODO: uncomment below
-    train_dataset = tonic.datasets.NMNIST(save_to='../data', train=True)
-    test_dataset = tonic.datasets.NMNIST(save_to='../data', train=False)
+    if ALEX_ENV:
+        train_dataset, test_dataset = ct.get_sorted_datasets(train_dataset_path, test_dataset_path)
+        print("Successfully loaded sorted datasets.")
+    else:
+        train_dataset = tonic.datasets.NMNIST(save_to='../data', train=True)
+        test_dataset = tonic.datasets.NMNIST(save_to='../data', train=False)
 
-    split_train_test_validation('../data/NMNIST', '../data/N_MNIST', cleanup=False, train_data_percentage=0.8)
+    ncaltech101_dataset = tonic.datasets.NCALTECH101(save_to='../data')
+    
 
-    generate_rgbd_images_and_masks(train_dataset, test_dataset, '../data/N_MNIST_images_Alex', cleanup=True, skip=1000)
-    # TODO: uncomment above
+    ct.combine_datasets_parallel(nmnist=train_dataset, ncaltech101=ncaltech101_dataset)
 
-    # #                0,  1,    2,    3,    4,    5,    6,    7,    8,    9
-    # target_arrays = [0, 1000, 3000, 4000, 4900, 5500, 6500, 7000, 8500, 9200]
-    # sensor_size = tonic.datasets.NMNIST.sensor_size
-    # frame_transform = transforms.ToFrame(sensor_size=sensor_size, n_time_bins=3)
 
-    # for i in target_arrays:
-    #     frames, colorized_masks, target = generate_masks(test_dataset[i])
-    #     show_events(frames, 'input/frame_' + str(target) + '_')
-    #     show_events(colorized_masks, 'frames/label_masked_frame' + str(target) + '_')
-    # generate_masks(dataset[9200])
+    # noisy_train = ct.combine_datasets(nmnist=train_dataset[:50], ncaltech101=ncaltech101_dataset, save_path="../data/alex_data/noisy_train")
 
-    # frames_path = 'frames/'
-    # if not os.path.isdir(frames_path):
-    #     os.mkdir(frames_path)
-    #
-    # file_paths = os.listdir(frames_path)
-    # images = []
-    # for image_path in file_paths:
-    #     image = cv2.imread(frames_path + image_path, cv2.IMREAD_COLOR)
-    #     images.append(image)
-    # generate_gif('./mask_applied.gif', images)
+    # print("Train:")
+    # noisy_train = ct.combine_datasets(nmnist=train_dataset[:50], ncaltech101=ncaltech101_dataset, save_path="../data/alex_data/noisy_train")
+    # print(type(np.array(noisy_train, dtype=object)))
+    # np.save("../data/alex_data/noisy_train", np.array(noisy_train, dtype=object), allow_pickle=True)
+    
+
+    # print("Test:")
+    # new_test = ct.combine_datasets(nmnist=test_dataset, ncaltech101=ncaltech101_dataset)
+    # print(new_test)
+    # np.save("../data/alex_data/new_test", new_test, allow_pickle=True)
 
 
 
+    # split_train_test_validation('../data/NMNIST', '../data/N_MNIST', cleanup=False, train_data_percentage=0.8)
 
-
-
-
-
-
-
-
-
-
-
-
-
+    # generate_rgbd_images_and_masks(train_dataset, test_dataset, '../data/N_MNIST_images_Alex', cleanup=True, skip=50)
 

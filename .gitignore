@@ -29,3 +29,6 @@ src/frames/
 logs/
 temp_logs/
 *.h5
+
+.DS_Store
+event_datasets

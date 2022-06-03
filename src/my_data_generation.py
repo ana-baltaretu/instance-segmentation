@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.my_label_generation import *
+from my_label_generation import *
 import random
 from keras.datasets import mnist
 
@@ -140,5 +140,5 @@ def generate_rgbd_images_and_masks(train_dataset, test_dataset, output_path, cle
 
     print('--------------------------- Validation ---------------------------')
     save_images(validation_path, test_dataset, skip, mask_indices_per_label_test, test_X)
-    print('--------------------------- Train&Test ---------------------------')
+    # print('--------------------------- Train&Test ---------------------------')
     # save_images(training_path, train_dataset, skip, mask_indices_per_label_train, train_X, train_data_percentage=0.8, secondary_chosen_directory=testing_path)
