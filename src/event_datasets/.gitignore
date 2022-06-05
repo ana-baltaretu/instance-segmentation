@@ -1,0 +1,9 @@
+data
+frames
+*.gif
+*.mp4
+*.jpg
+*.jpeg
+.vscode
+__pycache__
+.DS_Store
