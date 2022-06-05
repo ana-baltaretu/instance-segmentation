@@ -22,7 +22,6 @@ import urllib.request
 import shutil
 import warnings
 from distutils.version import LooseVersion
-
 # URL from which to download the latest COCO trained weights
 COCO_MODEL_URL = "https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5"
 
@@ -110,6 +109,9 @@ def compute_overlaps_masks(masks1, masks2):
     masks2 = np.reshape(masks2 > .5, (-1, masks2.shape[-1])).astype(np.float32)
     area1 = np.sum(masks1, axis=0)
     area2 = np.sum(masks2, axis=0)
+
+    # print("Prediction", area1)
+    # print("GT: [BG , Number]", area2)
 
     # intersections and union
     intersections = np.dot(masks1.T, masks2)
@@ -680,7 +682,7 @@ def compute_matches(gt_boxes, gt_class_ids, gt_masks,
 
     # Compute IoU overlaps [pred_masks, gt_masks]
     overlaps = compute_overlaps_masks(pred_masks, gt_masks)
-
+    # print("overlaps:", overlaps)
     # Loop through predictions and find matching ground truth boxes
     match_count = 0
     pred_match = -1 * np.ones([pred_boxes.shape[0]])
@@ -710,6 +712,25 @@ def compute_matches(gt_boxes, gt_class_ids, gt_masks,
                 break
 
     return gt_match, pred_match, overlaps
+
+
+def compute_accuracy(pred_masks, gt_masks):
+    # WORKS FOR 1 NUMBER ONLY!!!!!!!!!!!!!!!!!
+    # TODO: Make it work for more numbers
+
+    # If either set of masks is empty return empty result
+    if pred_masks.shape[-1] == 0 or gt_masks.shape[-1] == 0 or gt_masks.shape[2] < 2:
+        return 0
+
+    # flatten masks and compute their areas
+    pred_masks = np.reshape(pred_masks > .1, (-1, pred_masks.shape[-1])).astype(np.float32)
+    gt_masks = np.reshape(gt_masks > .1, (-1, gt_masks.shape[-1])).astype(np.float32)
+
+    total_pixels = pred_masks.shape[0]
+    total_matching_pixels = np.sum(pred_masks[:, 0] == gt_masks[:, 1])
+    accuracy = total_matching_pixels / total_pixels
+
+    return accuracy
 
 
 def compute_ap(gt_boxes, gt_class_ids, gt_masks,
