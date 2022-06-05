@@ -145,7 +145,7 @@ def generate_cropped_frames(len_arr_x, len_arr_y, frames, center_indices):
 
 def generate_event_frames_with_fixed_time_window(positive_event_array_denoised, negative_event_array_denoised,
                                                  positive_event_array, negative_event_array,
-                                                 window_len=20, img_shape=(34, 34)):
+                                                 window_len=10, img_shape=(34, 34)):
     img_height, img_width = img_shape
 
     x_data_pos_den, y_data_pos_den, _, time_data_pos_den = positive_event_array_denoised
@@ -189,7 +189,16 @@ def generate_event_frames_with_fixed_time_window(positive_event_array_denoised, 
             time_frame[y][x] = j - current_j  # Latest pixel gets saved
             j += 1
 
-        equalized_hist = cv2.equalizeHist(time_frame)
+        equalized_hist = np.array(cv2.equalizeHist(time_frame))
+
+        x_pixels, y_pixels = np.where(equalized_hist > 0)
+
+        # Because I don't want event pixels that got triggered in that interval to be 0
+        equalized_hist[x_pixels, y_pixels] = equalized_hist[x_pixels, y_pixels] / 2 + 50
+
+        # print(equalized_hist[white_pixels[0]:white_pixels[1]])
+         #= equalized_hist[white_pixels] / 2 + 127
+        # print()
 
         # print('nonzero:', np.count_nonzero(current_frame))
         # print(current_j, j)

@@ -6,7 +6,10 @@ src/__pycache__/
 configs/__pycache__/
 src/mrcnn/__pycache__/*
 
+results/
 data/
+temp_data/
+
 evdistill/
 tutorials/cache
 dvs_clustering_tracking/

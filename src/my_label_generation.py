@@ -57,8 +57,8 @@ def mask_placement_correction(y0, y1, x0, x1, mask, frame):
     # print(x0, y0, x1, y1)
 
     y0_mx, y1_mx, x0_mx, x1_mx = y0, y1, x0, x1
-    dx = [-1, 0, 1, 1, 1, 0, -1, -1]
-    dy = [-1, -1, -1, 0, 1, 1, 1, 0]
+    dx = [-1, 0, 1, 1, 1, 0, -1, -1,  -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2, -2, -2]
+    dy = [-1, -1, -1, 0, 1, 1, 1, 0,  -2, -2, -2, -2, -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1]
 
     for d in range(8):
         x0_new, y0_new = x0 + dx[d], y0 + dy[d]
@@ -141,7 +141,7 @@ def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_labe
         hh -= max(y1 - phh, 0)
         ww -= max(x1 - pww, 0)
         hh = min(hh, phh - y0)
-        ww = min(ww, pww - y0)
+        ww = min(ww, pww - x0)
         # print(hh, ww, y1-y0, x1-x0)
         # print(x0, x0+ww)
 
