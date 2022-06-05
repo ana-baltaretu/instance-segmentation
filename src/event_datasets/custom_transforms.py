@@ -18,6 +18,7 @@ TEST_PATH = "../data/sorted_NMNIST/test_dataset.npy"
 TRAIN_MERGED_PATH = "../data/alex_data/train_dataset_merged/"
 TEST_MERGED_PATH = "../data/alex_data/test_dataset_merged/"
 
+
 class Superimposed:
     def __init__(self, background_events, foreground_events):
         self.bkg = np.sort(background_events, order="t")

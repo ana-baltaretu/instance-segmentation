@@ -86,23 +86,17 @@ def mask_placement_correction(y0, y1, x0, x1, mask, frame):
     return y0_mx, y1_mx, x0_mx, x1_mx, max_score
 
 
-def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_label, mnist_dataset):
+def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_label, mnist_dataset, original_nmnist_entry):
     my_events, target = dataset_entry
+    original_events, original_target = original_nmnist_entry
     # plot_frames_denoised(frame_transform, my_events)
-    print(target)
+    print(target, original_target)
 
-    # if index == 9000:
-    #     alex_events = np.load('../data/alex_data/index_1000.npy')
-    #     print(alex_events)
-
-    #     positive_event_array = generate_event_arrays(alex_events, 1)
-    #     negative_event_array = generate_event_arrays(alex_events, 0)
-    # else:
     positive_event_array = generate_event_arrays(my_events, 1)
     negative_event_array = generate_event_arrays(my_events, 0)
 
     denoise_transform = tonic.transforms.Denoise(filter_time=5000)
-    events_denoised = denoise_transform(my_events)
+    events_denoised = denoise_transform(original_events)
     # events_denoised = my_events
 
     positive_event_array_denoised = generate_event_arrays(events_denoised, 1)

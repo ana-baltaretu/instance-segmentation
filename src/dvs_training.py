@@ -26,7 +26,7 @@ model = modellib.MaskRCNN(mode="training", config=config,
                           model_dir=MODEL_DIR)
 
 # Which weights to start with?
-init_with = "last"  # imagenet, coco, last, none
+init_with = "coco"  # imagenet, coco, last, none
 
 if init_with == "imagenet":
     model.load_weights(model.get_imagenet_weights(), by_name=True)
