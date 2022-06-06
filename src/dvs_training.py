@@ -1,5 +1,9 @@
 from dvs_config import *
 from dvs_dataset import *
+import wandb
+from wandb.keras import WandbCallback
+wandb.init(project="dvs-training")
+
 
 config = DvsConfig()
 config.display()
@@ -60,7 +64,8 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE / 10,
             epochs=12,
-            layers="all")
+            layers="all",
+            custom_callbacks=[WandbCallback()])
 
 # # Save weights
 # # Typically not needed because callbacks save after every epoch
@@ -83,7 +88,8 @@ print('---------------------------------------------------------------\n\n')
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE / 10,
             epochs=17,
-            layers="all")
+            layers="all",
+            custom_callbacks=[WandbCallback()])
 
 # Save weights
 # Typically not needed because callbacks save after every epoch
