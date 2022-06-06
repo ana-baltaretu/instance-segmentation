@@ -1,5 +1,7 @@
 import os
 
+import numpy as np
+
 from src.dvs_config import *
 from src.dvs_dataset import *
 import json
@@ -27,6 +29,8 @@ config.display()
 dataset_validation = RGBDDataset()
 # dataset_validation.load('../data/N_MNIST_images_actually_all_10ms', 'validation')
 dataset_validation.load('../data/N_MNIST_images_10ms_skip_50', 'validation')
+# dataset_validation.load('../data/N_MNIST_images_20ms_skip_50', 'validation')
+# dataset_validation.load('../data/N_MNIST_images_50ms_skip_50', 'validation')
 dataset_validation.prepare()
 
 class InferenceConfig(DvsConfig):
@@ -43,7 +47,7 @@ model = modellib.MaskRCNN(mode="inference",
 # Get path to saved weights
 # Either set a specific path or find last trained weights
 # model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes.h5")
-# model.set_log_dir('temp_logs/_latest_15epochs_actually_all_10ms_coco_base')
+model.set_log_dir('temp_logs/__table_15ep_10ms_coco_skip_50')
 model_path = model.find_last()
 print(model_path)
 
@@ -92,7 +96,7 @@ if os.path.exists(results_path) is False:
 # # Compute VOC-Style mAP @ IoU=0.5
 # image_ids = dataset_validation.image_ids  # np.random.choice(dataset_validation.image_ids, 500)
 image_ids = np.random.choice(dataset_validation.image_ids, 500)
-APs, ACCs = [], []
+APs, ACCs, IoUs = [], [], []
 for image_id in image_ids:
     # print(image_id)
     # Load image and ground truth data
@@ -105,15 +109,22 @@ for image_id in image_ids:
     r = results[0]
 
     # Compute AP
-    AP, precisions, recalls, overlaps = \
+    AP, precisions, recalls, overlaps, ious = \
         utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
                          r["rois"], r["class_ids"], r["scores"], r['masks'], iou_threshold=0)
+    # print(AP, overlaps)
+    print(ious)
     accuracy = utils.compute_accuracy(r['masks'], gt_mask)
     # print(accuracy)
+    if len(ious) > 0:
+        IoUs.append(np.mean(ious))
+    else:
+        IoUs.append(0.0)
     APs.append(AP)
     ACCs.append(accuracy)
 
-print("mean IoU: ", np.mean(APs))
+print("mean AP: ", np.mean(APs))
+print("mean IoUs: ", np.mean(IoUs))
 print("mean Accuracies: ", np.mean(ACCs))
 
 # visualize.display_differences()

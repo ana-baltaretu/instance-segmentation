@@ -6,12 +6,12 @@ config.display()
 
 # Training dataset
 dataset_train = RGBDDataset()
-dataset_train.load('../data/N_MNIST_images_aligned', 'training')
+dataset_train.load('../data/N_MNIST_images_20ms_skip_50', 'training')
 dataset_train.prepare()
 
 # Validation dataset
 dataset_testing = RGBDDataset()
-dataset_testing.load('../data/N_MNIST_images_aligned', 'testing')
+dataset_testing.load('../data/N_MNIST_images_20ms_skip_50', 'testing')
 dataset_testing.prepare()
 
 # Load and display random samples
@@ -26,7 +26,7 @@ model = modellib.MaskRCNN(mode="training", config=config,
                           model_dir=MODEL_DIR)
 
 # Which weights to start with?
-init_with = "last"  # imagenet, coco, last, none
+init_with = "coco"  # imagenet, coco, last, none
 
 if init_with == "imagenet":
     model.load_weights(model.get_imagenet_weights(), by_name=True)
@@ -48,23 +48,34 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 
 ####################### UNCOMMENT THESE WHEN TRAINING #######################
 
-# Train the head branches
-# Passing layers="heads" freezes all layers except the head
-# layers. You can also pass a regular expression to select
-# which layers to train by name pattern.
+# # Train the head branches
+# # Passing layers="heads" freezes all layers except the head
+# # layers. You can also pass a regular expression to select
+# # which layers to train by name pattern.
+model.train(dataset_train, dataset_testing,
+            learning_rate=config.LEARNING_RATE,
+            epochs=2,
+            layers='heads')
+#
+# # model.train(dataset_train, dataset_testing,
+# #             learning_rate=config.LEARNING_RATE / 10,
+# #             epochs=12,
+# #             layers="all")
+#
+# # # Save weights
+# # # Typically not needed because callbacks save after every epoch
+# # # Uncomment to save manually
+model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
+model.keras_model.save_weights(model_path)
+
 # model.train(dataset_train, dataset_testing,
 #             learning_rate=config.LEARNING_RATE,
-#             epochs=2,
+#             epochs=5,
 #             layers='heads')
-
-model.train(dataset_train, dataset_testing,
-            learning_rate=config.LEARNING_RATE / 10,
-            epochs=12,
-            layers="all")
-
-# # Save weights
-# # Typically not needed because callbacks save after every epoch
-# # Uncomment to save manually
+#
+# # # Save weights
+# # # Typically not needed because callbacks save after every epoch
+# # # Uncomment to save manually
 model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
 model.keras_model.save_weights(model_path)
 
@@ -82,7 +93,7 @@ print('---------------------------------------------------------------\n\n')
 
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=17,
+            epochs=15,
             layers="all")
 
 # Save weights

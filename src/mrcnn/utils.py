@@ -687,6 +687,7 @@ def compute_matches(gt_boxes, gt_class_ids, gt_masks,
     match_count = 0
     pred_match = -1 * np.ones([pred_boxes.shape[0]])
     gt_match = -1 * np.ones([gt_boxes.shape[0]])
+    ious = []
     for i in range(len(pred_boxes)):
         # Find best matching ground truth box
         # 1. Sort matches by score
@@ -695,6 +696,8 @@ def compute_matches(gt_boxes, gt_class_ids, gt_masks,
         low_score_idx = np.where(overlaps[i, sorted_ixs] < score_threshold)[0]
         if low_score_idx.size > 0:
             sorted_ixs = sorted_ixs[:low_score_idx[0]]
+
+
         # 3. Find the match
         for j in sorted_ixs:
             # If ground truth box is already matched, go to next one
@@ -709,9 +712,10 @@ def compute_matches(gt_boxes, gt_class_ids, gt_masks,
                 match_count += 1
                 gt_match[j] = i
                 pred_match[i] = j
+                ious.append(iou)
                 break
 
-    return gt_match, pred_match, overlaps
+    return gt_match, pred_match, overlaps, ious
 
 
 def compute_accuracy(pred_masks, gt_masks):
@@ -745,7 +749,7 @@ def compute_ap(gt_boxes, gt_class_ids, gt_masks,
     overlaps: [pred_boxes, gt_boxes] IoU overlaps.
     """
     # Get matches and overlaps
-    gt_match, pred_match, overlaps = compute_matches(
+    gt_match, pred_match, overlaps, ious = compute_matches(
         gt_boxes, gt_class_ids, gt_masks,
         pred_boxes, pred_class_ids, pred_scores, pred_masks,
         iou_threshold)
@@ -769,7 +773,7 @@ def compute_ap(gt_boxes, gt_class_ids, gt_masks,
     mAP = np.sum((recalls[indices] - recalls[indices - 1]) *
                  precisions[indices])
 
-    return mAP, precisions, recalls, overlaps
+    return mAP, precisions, recalls, overlaps, ious
 
 
 def compute_ap_range(gt_box, gt_class_id, gt_mask,
@@ -782,7 +786,7 @@ def compute_ap_range(gt_box, gt_class_id, gt_mask,
     # Compute AP over range of IoU thresholds
     AP = []
     for iou_threshold in iou_thresholds:
-        ap, precisions, recalls, overlaps =\
+        ap, precisions, recalls, overlaps, ious =\
             compute_ap(gt_box, gt_class_id, gt_mask,
                         pred_box, pred_class_id, pred_score, pred_mask,
                         iou_threshold=iou_threshold)
