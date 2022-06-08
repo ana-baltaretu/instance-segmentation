@@ -1,21 +1,17 @@
-from dvs_config import *
-from dvs_dataset import *
-import wandb
-from wandb.keras import WandbCallback
-wandb.init(project="dvs-training")
-
+from src.dvs_config import *
+from src.dvs_dataset_multiple import RGBDDatasetMultiple
 
 config = DvsConfig()
 config.display()
 
 # Training dataset
-dataset_train = RGBDDataset()
-dataset_train.load('../data/N_MNIST_images_Alex', 'training')
+dataset_train = RGBDDatasetMultiple()
+dataset_train.load('../data/N_MNIST_images_20ms_skip_50', 'training')
 dataset_train.prepare()
 
 # Validation dataset
-dataset_testing = RGBDDataset()
-dataset_testing.load('../data/N_MNIST_images_Alex', 'testing')
+dataset_testing = RGBDDatasetMultiple()
+dataset_testing.load('../data/N_MNIST_images_20ms_skip_50', 'testing')
 dataset_testing.prepare()
 
 # Load and display random samples
@@ -98,8 +94,7 @@ print('---------------------------------------------------------------\n\n')
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE / 10,
             epochs=15,
-            layers="all",
-            custom_callbacks=[WandbCallback()])
+            layers="all")
 
 # Save weights
 # Typically not needed because callbacks save after every epoch

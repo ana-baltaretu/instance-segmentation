@@ -715,6 +715,12 @@ def compute_matches(gt_boxes, gt_class_ids, gt_masks,
                 ious.append(iou)
                 break
 
+    # print(len(ious), len(gt_class_ids) - 1)
+    if len(ious) < len(gt_class_ids) - 1:
+        extra_zeros = list(np.zeros(len(gt_class_ids) - 1 - len(ious)))
+        ious += extra_zeros
+        # print()
+
     return gt_match, pred_match, overlaps, ious
 
 
@@ -748,6 +754,7 @@ def compute_ap(gt_boxes, gt_class_ids, gt_masks,
     recalls: List of recall values at different class score thresholds.
     overlaps: [pred_boxes, gt_boxes] IoU overlaps.
     """
+    print(gt_class_ids, len(gt_class_ids), pred_class_ids, len(pred_class_ids))
     # Get matches and overlaps
     gt_match, pred_match, overlaps, ious = compute_matches(
         gt_boxes, gt_class_ids, gt_masks,
