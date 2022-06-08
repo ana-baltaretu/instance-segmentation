@@ -1,17 +1,17 @@
 from src.dvs_config import *
-from src.dvs_dataset import *
+from src.dvs_dataset_multiple import RGBDDatasetMultiple
 
 config = DvsConfig()
 config.display()
 
 # Training dataset
-dataset_train = RGBDDataset()
-dataset_train.load('../data/N_MNIST_images_50ms_skip_50', 'training')
+dataset_train = RGBDDatasetMultiple()
+dataset_train.load('../data/N_MNIST_images_20ms_skip_50', 'training')
 dataset_train.prepare()
 
 # Validation dataset
-dataset_testing = RGBDDataset()
-dataset_testing.load('../data/N_MNIST_images_50ms_skip_50', 'testing')
+dataset_testing = RGBDDatasetMultiple()
+dataset_testing.load('../data/N_MNIST_images_20ms_skip_50', 'testing')
 dataset_testing.prepare()
 
 # Load and display random samples
