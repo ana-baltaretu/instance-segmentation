@@ -10,20 +10,12 @@ config.display()
 
 # Training dataset
 dataset_train = RGBDDataset()
-<<<<<<< HEAD
 dataset_train.load('../data/N_MNIST_images_Alex', 'training')
-=======
-dataset_train.load('../data/N_MNIST_images_20ms_skip_50', 'training')
->>>>>>> main
 dataset_train.prepare()
 
 # Validation dataset
 dataset_testing = RGBDDataset()
-<<<<<<< HEAD
 dataset_testing.load('../data/N_MNIST_images_Alex', 'testing')
-=======
-dataset_testing.load('../data/N_MNIST_images_20ms_skip_50', 'testing')
->>>>>>> main
 dataset_testing.prepare()
 
 # Load and display random samples
