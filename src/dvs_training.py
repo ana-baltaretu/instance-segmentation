@@ -1,8 +1,8 @@
 from dvs_config import *
 from dvs_dataset import *
 import wandb
-from wandb.keras import WandbCallback
-wandb.init(project="dvs-training")
+# from wandb.keras import WandbCallback
+# wandb.init(project="dvs-training")
 
 
 config = DvsConfig()
@@ -19,11 +19,11 @@ dataset_testing.load('../data/N_MNIST_images_Alex', 'testing')
 dataset_testing.prepare()
 
 # Load and display random samples
-image_ids = np.random.choice(dataset_train.image_ids, 30)
-for image_id in image_ids:
-    image = dataset_train.load_image(image_id)
-    mask, class_ids = dataset_train.load_mask(image_id)
-    visualize.display_top_masks(image, mask, class_ids, dataset_train.class_names)
+# image_ids = np.random.choice(dataset_train.image_ids, 30)
+# for image_id in image_ids:
+#     image = dataset_train.load_image(image_id)
+#     mask, class_ids = dataset_train.load_mask(image_id)
+#     visualize.display_top_masks(image, mask, class_ids, dataset_train.class_names)
 
 # Create model in training mode
 model = modellib.MaskRCNN(mode="training", config=config,
@@ -98,8 +98,7 @@ print('---------------------------------------------------------------\n\n')
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE / 10,
             epochs=15,
-            layers="all",
-            custom_callbacks=[WandbCallback()])
+            layers="all")
 
 # Save weights
 # Typically not needed because callbacks save after every epoch
