@@ -145,7 +145,7 @@ def generate_cropped_frames(len_arr_x, len_arr_y, frames, center_indices):
 
 def generate_event_frames_with_fixed_time_window(positive_event_array_denoised, negative_event_array_denoised,
                                                  positive_event_array, negative_event_array,
-                                                 window_len=10, img_shape=(34, 34)):
+                                                 window_len=20, img_shape=(34, 34)):
     img_height, img_width = img_shape
 
     x_data_pos_den, y_data_pos_den, _, time_data_pos_den = positive_event_array_denoised

@@ -1,6 +1,10 @@
+import os
+
+import numpy as np
+
 from dvs_config import *
 from dvs_dataset import *
-
+import json
 
 def get_ax(rows=1, cols=1, size=8):
     """Return a Matplotlib Axes array to be used in
@@ -17,13 +21,16 @@ config = DvsConfig()
 config.display()
 
 # Training dataset
-dataset_train = RGBDDataset()
-dataset_train.load('../data/N_MNIST_images_aligned', 'training')
-dataset_train.prepare()
+# dataset_train = RGBDDataset()
+# dataset_train.load('../data/N_MNIST_images_actually_all_10ms', 'training')
+# dataset_train.prepare()
 
 # Testing dataset
 dataset_validation = RGBDDataset()
-dataset_validation.load('../data/N_MNIST_images_aligned', 'validation')
+# dataset_validation.load('../data/N_MNIST_images_actually_all_10ms', 'validation')
+dataset_validation.load('../data/N_MNIST_images_10ms_skip_50', 'validation')
+# dataset_validation.load('../data/N_MNIST_images_20ms_skip_50', 'validation')
+# dataset_validation.load('../data/N_MNIST_images_50ms_skip_50', 'validation')
 dataset_validation.prepare()
 
 class InferenceConfig(DvsConfig):
@@ -40,7 +47,7 @@ model = modellib.MaskRCNN(mode="inference",
 # Get path to saved weights
 # Either set a specific path or find last trained weights
 # model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes.h5")
-# model.set_log_dir('logs/trained_nmnist_no_depth')
+model.set_log_dir('temp_logs/__table_15ep_10ms_coco_skip_50')
 model_path = model.find_last()
 print(model_path)
 
@@ -53,11 +60,12 @@ print("MODEL")
 # print(model.config.display())
 print('\n\n\n')
 
-for i in range(20):
+for i in range(1):
     # Test on a random image
-    image_id = random.choice(dataset_train.image_ids)
+    image_id = random.choice(dataset_validation.image_ids)
+    print(image_id)
     original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
-        modellib.load_image_gt(dataset_train, inference_config,
+        modellib.load_image_gt(dataset_validation, inference_config,
                                image_id) # , use_mini_mask=False
 
     # log("original_image", original_image)
@@ -68,24 +76,29 @@ for i in range(20):
     # print(gt_mask)
 
     visualize.display_instances(original_image, gt_bbox, gt_mask, gt_class_id,
-                                dataset_train.class_names, figsize=(8, 8))
+                                dataset_validation.class_names, figsize=(8, 8))
 
     # model.detect()
 
     results = model.detect([original_image], verbose=1)
-    print(results)
+    # print(results)
 
     r = results[0]
     visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'],
-                                dataset_train.class_names, scores=r['scores'])
+                                dataset_validation.class_names, scores=r['scores'])
 
 
 ########## EVALUATION
+results_path = '../results/'
+if os.path.exists(results_path) is False:
+    os.mkdir(results_path)
 
 # # Compute VOC-Style mAP @ IoU=0.5
-image_ids = dataset_validation.image_ids  # np.random.choice(dataset_validation.image_ids, 500)
-APs = []
+# image_ids = dataset_validation.image_ids  # np.random.choice(dataset_validation.image_ids, 500)
+image_ids = np.random.choice(dataset_validation.image_ids, 500)
+APs, ACCs, IoUs = [], [], []
 for image_id in image_ids:
+    # print(image_id)
     # Load image and ground truth data
     image, image_meta, gt_class_id, gt_bbox, gt_mask = \
         modellib.load_image_gt(dataset_validation, inference_config,
@@ -94,12 +107,24 @@ for image_id in image_ids:
     # Run object detection
     results = model.detect([image], verbose=0)
     r = results[0]
+
     # Compute AP
-    AP, precisions, recalls, overlaps = \
+    AP, precisions, recalls, overlaps, ious = \
         utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
                          r["rois"], r["class_ids"], r["scores"], r['masks'], iou_threshold=0)
+    # print(AP, overlaps)
+    print(ious)
+    accuracy = utils.compute_accuracy(r['masks'], gt_mask)
+    # print(accuracy)
+    if len(ious) > 0:
+        IoUs.append(np.mean(ious))
+    else:
+        IoUs.append(0.0)
     APs.append(AP)
+    ACCs.append(accuracy)
 
-print("mAP: ", np.mean(APs))
+print("mean AP: ", np.mean(APs))
+print("mean IoUs: ", np.mean(IoUs))
+print("mean Accuracies: ", np.mean(ACCs))
 
 # visualize.display_differences()

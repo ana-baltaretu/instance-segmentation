@@ -67,6 +67,17 @@ def split_train_test_validation(input_path, output_path, cleanup=False, train_da
                 # print('testing')
 
 
+def take_less_samples(frames, colorized_masks, time_frames, how_many_to_take = 10):
+    if len(frames) > how_many_to_take:
+        smaller_sample = random.sample(range(0, len(frames)), how_many_to_take)
+
+        frames = np.array(frames)[smaller_sample]
+        colorized_masks = np.array(colorized_masks)[smaller_sample]
+        time_frames = np.array(time_frames)[smaller_sample]
+
+    return frames, colorized_masks, time_frames
+
+
 def save_images(chosen_directory, dataset, skip, mask_indices_per_label, mnist_dataset, original_nmnist, train_data_percentage=1, secondary_chosen_directory=''):
     last_saved_target, last_saved_index = 0, 0
 
@@ -81,13 +92,8 @@ def save_images(chosen_directory, dataset, skip, mask_indices_per_label, mnist_d
             original_nmnist_entry = original_nmnist[i]
             frames, colorized_masks, target, time_frames = generate_masks(entry, i, last_saved_index, mask_indices_per_label, mnist_dataset, original_nmnist_entry)
 
-            how_many_to_take = 10
-            if len(frames) > how_many_to_take:
-                smaller_sample = random.sample(range(0, len(frames)), how_many_to_take)
-
-                frames = np.array(frames)[smaller_sample]
-                colorized_masks = np.array(colorized_masks)[smaller_sample]
-                time_frames = np.array(time_frames)[smaller_sample]
+            # If we don't want to take all of the images
+            # frames, colorized_masks, time_frames = take_less_samples(frames, colorized_masks, time_frames)
 
             # Pick training / testing directory before including any of the frames
             if random.random() < train_data_percentage:

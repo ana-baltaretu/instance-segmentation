@@ -175,7 +175,7 @@ def display_differences(image,
                         iou_threshold=0.5, score_threshold=0.5):
     """Display ground truth and prediction instances on the same image."""
     # Match predictions to ground truth
-    gt_match, pred_match, overlaps = utils.compute_matches(
+    gt_match, pred_match, overlaps, ious = utils.compute_matches(
         gt_box, gt_class_id, gt_mask,
         pred_box, pred_class_id, pred_score, pred_mask,
         iou_threshold=iou_threshold, score_threshold=score_threshold)

@@ -10,12 +10,20 @@ config.display()
 
 # Training dataset
 dataset_train = RGBDDataset()
+<<<<<<< HEAD
 dataset_train.load('../data/N_MNIST_images_Alex', 'training')
+=======
+dataset_train.load('../data/N_MNIST_images_20ms_skip_50', 'training')
+>>>>>>> main
 dataset_train.prepare()
 
 # Validation dataset
 dataset_testing = RGBDDataset()
+<<<<<<< HEAD
 dataset_testing.load('../data/N_MNIST_images_Alex', 'testing')
+=======
+dataset_testing.load('../data/N_MNIST_images_20ms_skip_50', 'testing')
+>>>>>>> main
 dataset_testing.prepare()
 
 # Load and display random samples
@@ -52,24 +60,34 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 
 ####################### UNCOMMENT THESE WHEN TRAINING #######################
 
-# Train the head branches
-# Passing layers="heads" freezes all layers except the head
-# layers. You can also pass a regular expression to select
-# which layers to train by name pattern.
+# # Train the head branches
+# # Passing layers="heads" freezes all layers except the head
+# # layers. You can also pass a regular expression to select
+# # which layers to train by name pattern.
+model.train(dataset_train, dataset_testing,
+            learning_rate=config.LEARNING_RATE,
+            epochs=2,
+            layers='heads')
+#
+# # model.train(dataset_train, dataset_testing,
+# #             learning_rate=config.LEARNING_RATE / 10,
+# #             epochs=12,
+# #             layers="all")
+#
+# # # Save weights
+# # # Typically not needed because callbacks save after every epoch
+# # # Uncomment to save manually
+model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
+model.keras_model.save_weights(model_path)
+
 # model.train(dataset_train, dataset_testing,
 #             learning_rate=config.LEARNING_RATE,
-#             epochs=2,
+#             epochs=5,
 #             layers='heads')
-
-model.train(dataset_train, dataset_testing,
-            learning_rate=config.LEARNING_RATE / 10,
-            epochs=12,
-            layers="all",
-            custom_callbacks=[WandbCallback()])
-
-# # Save weights
-# # Typically not needed because callbacks save after every epoch
-# # Uncomment to save manually
+#
+# # # Save weights
+# # # Typically not needed because callbacks save after every epoch
+# # # Uncomment to save manually
 model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
 model.keras_model.save_weights(model_path)
 
@@ -87,7 +105,7 @@ print('---------------------------------------------------------------\n\n')
 
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=17,
+            epochs=15,
             layers="all",
             custom_callbacks=[WandbCallback()])
 
