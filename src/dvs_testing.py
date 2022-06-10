@@ -30,7 +30,7 @@ dataset_validation = RGBDDataset()
 # dataset_validation.load('../data/N_MNIST_images_actually_all_10ms', 'validation')
 dataset_validation.load('../data/N_MNIST_images_Alex', 'validation')
 # dataset_validation.load('../data/N_MNIST_images_20ms_skip_50', 'validation')
-dataset_validation.load('../data/N_MNIST_images_50ms_skip_50', 'validation')
+# dataset_validation.load('../data/N_MNIST_images_50ms_skip_50', 'validation')
 dataset_validation.prepare()
 
 class InferenceConfig(DvsConfig):
