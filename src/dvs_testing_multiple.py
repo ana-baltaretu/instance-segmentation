@@ -54,8 +54,6 @@ model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_5ep.h5")
 # model_path = model.find_last()
 print(model_path)
 
-
-
 # Load trained weights
 print("Loading weights from ", model_path)
 model.load_weights(model_path, by_name=True)
@@ -63,7 +61,7 @@ print("MODEL")
 # print(model.config.display())
 print('\n\n\n')
 
-for i in range(1):
+for i in range(30):
     # Test on a random image
     image_id = random.choice(dataset_validation.image_ids)
     print(image_id)
