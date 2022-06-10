@@ -43,32 +43,34 @@ def generate_average_mask(stretched_mat):
     return colorized_mask
 
 
-def mask_placement_correction(y0, y1, x0, x1, mask, frame):
-    position_bw_mask = np.zeros(frame.shape, np.uint8)
-    # print(y0, y1, x0, x1)
-    # print(y1-y0, x1-x0)
-    position_bw_mask[y0:y1, x0:x1] = mask[0:y1-y0, 0:x1-x0]
-    combined = cv2.bitwise_and(frame, position_bw_mask)
-    # cv2.imshow('position_bw_mask', position_bw_mask)
-    # cv2.imshow('combined', combined)
-    initial_max_score = np.count_nonzero(combined)
+dx = [-1, 0, 1, 1, 1, 0, -1, -1,
+          -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2, -2, -2,
+          -3, -2, -1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3, -3, -3, -3]
+dy = [-1, -1, -1, 0, 1, 1, 1, 0,
+      -2, -2, -2, -2, -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1,
+      -3, -3, -3, -3, -3, -3, -3, -2, -1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, -1, -3]
+
+
+def mask_placement_correction(y0, y1, x0, x1, mask, frame, bad_frame):
+    global mask_scores
+    initial_max_score = calculate_mask_placement_score(frame, mask, x0, x1, y0, y1)
     max_score = initial_max_score
-    # print(max_score)
-    # print(x0, y0, x1, y1)
 
     y0_mx, y1_mx, x0_mx, x1_mx = y0, y1, x0, x1
-    dx = [-1, 0, 1, 1, 1, 0, -1, -1,  -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2, -2, -2]
-    dy = [-1, -1, -1, 0, 1, 1, 1, 0,  -2, -2, -2, -2, -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1]
 
-    for d in range(8):
+    for d in range(len(dx)):
         x0_new, y0_new = x0 + dx[d], y0 + dy[d]
         x1_new, y1_new = x1 + dx[d], y1 + dy[d]
         if x0_new < 0 or y0_new < 0 or x1_new >= frame.shape[1] or y1_new >= frame.shape[0]:
             continue
+        if mask_scores[x0_new][y0_new] > 0:
+            continue
         position_bw_mask_new = np.zeros(frame.shape, np.uint8)
         position_bw_mask_new[y0_new:y1_new, x0_new:x1_new] = mask[0:y1_new-y0_new, 0:x1_new-x0_new]
         combined_new = cv2.bitwise_and(frame, position_bw_mask_new)
-        current_score = np.count_nonzero(combined_new)
+        #bad_combined_new = cv2.bitwise_and(bad_frame, position_bw_mask_new)
+        current_score = np.count_nonzero(combined_new) #- np.count_nonzero(bad_combined_new)
+        mask_scores[x0_new][y0_new] = current_score
         if current_score > max_score:
             max_score = current_score
             y0_mx, y1_mx, x0_mx, x1_mx = y0_new, y1_new, x0_new, x1_new
@@ -81,15 +83,51 @@ def mask_placement_correction(y0, y1, x0, x1, mask, frame):
         score_difference = (max_score-initial_max_score)/max_score
         # print('scores:', max_score, initial_max_score, score_difference)
         if score_difference > 0.02:
-            y0_mx, y1_mx, x0_mx, x1_mx, max_score = mask_placement_correction(y0_mx, y1_mx, x0_mx, x1_mx, mask, frame)
+            y0_mx, y1_mx, x0_mx, x1_mx, max_score = \
+                mask_placement_correction(y0_mx, y1_mx, x0_mx, x1_mx, mask, frame, bad_frame)
 
     return y0_mx, y1_mx, x0_mx, x1_mx, max_score
 
 
-def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_label, mnist_dataset):
+def calculate_mask_placement_score(frame, mask, x0, x1, y0, y1):
+    position_bw_mask = np.zeros(frame.shape, np.uint8)
+    position_bw_mask[y0:y1, x0:x1] = mask[0:y1-y0, 0:x1-x0]
+    combined = cv2.bitwise_and(frame, position_bw_mask)
+    return np.count_nonzero(combined)
+
+
+def place_mask(mask, frame, y0, y1, x0, x1):
+    y0_mx, y1_mx, x0_mx, x1_mx = y0, y1, x0, x1
+    red_score = calculate_mask_placement_score(frame[:, :, 2], mask, x0, x1, y0, y1)  # Red
+    blue_score = calculate_mask_placement_score(frame[:, :, 0], mask, x0, x1, y0, y1)  # Blue
+    mx_score = red_score + int(blue_score / 10)
+
+    hh, ww = mask.shape
+
+    for y0 in range(hh):
+        for x0 in range(ww):
+            y1, x1 = y0+hh, x0+ww
+            if x1 >= frame.shape[1] or y1 >= frame.shape[0]:
+                continue
+            red_current_score = calculate_mask_placement_score(frame[:, :, 2], mask, x0, x1, y0, y1)  # Red
+            blue_current_score = calculate_mask_placement_score(frame[:, :, 0], mask, x0, x1, y0, y1)  # Blue
+            current_score = red_current_score + int(blue_current_score / 10)
+            mask_scores[x0][y0] = current_score
+            if current_score > mx_score:
+                mx_score = current_score
+                y0_mx, y1_mx, x0_mx, x1_mx = y0, y1, x0, x1
+
+    return y0_mx, y1_mx, x0_mx, x1_mx, mx_score
+
+
+def generate_masks(dataset_entry, noisy_entry, index, last_saved_index, mask_indices_per_label, mnist_dataset):
+    global mask_scores
     my_events, target = dataset_entry
-    # plot_frames_denoised(frame_transform, my_events)
-    print(target)
+    noisy_events, noisy_target = noisy_entry
+    print("Target:", target)
+
+    positive_event_array = generate_event_arrays(noisy_events, 1)
+    negative_event_array = generate_event_arrays(noisy_events, 0)
 
     denoise_transform = tonic.transforms.Denoise(filter_time=5000)
     events_denoised = denoise_transform(my_events)
@@ -97,15 +135,14 @@ def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_labe
 
     positive_event_array_denoised = generate_event_arrays(events_denoised, 1)
     negative_event_array_denoised = generate_event_arrays(events_denoised, 0)
-    positive_event_array = generate_event_arrays(my_events, 1)
-    negative_event_array = generate_event_arrays(my_events, 0)
+
 
     # TODO Turn this into generation of fixed window length - DONE
 
     # frames, cropped_frames, len_x, len_y, cropping_positions, time_frames \
         # = generate_fixed_num_events_frames(positive_event_array, negative_event_array)
 
-    frames, cropped_frames, len_x, len_y, cropping_positions, time_frames \
+    frames, frames_denoised, cropped_frames, len_x, len_y, cropping_positions, time_frames \
         = generate_event_frames_with_fixed_time_window(positive_event_array_denoised, negative_event_array_denoised,
                                                        positive_event_array, negative_event_array)
 
@@ -126,6 +163,7 @@ def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_labe
     label_masked_frames = []
     colorized_masks = []
     for ind, frame in enumerate(frames):
+        frame_denoised = frames_denoised[ind]
         # print(np.count_nonzero(frame))
         (y0, y1, x0, x1) = cropping_positions[ind]
         result = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
@@ -141,11 +179,29 @@ def generate_masks(dataset_entry, index, last_saved_index, mask_indices_per_labe
         # print(hh, ww, y1-y0, x1-x0)
         # print(x0, x0+ww)
 
+        mask_scores = np.zeros((phh, pww, 1), np.uint8)
+        # cv2.imshow('frame_denoised', frame_denoised)
+        # cv2.imshow('red', frame_denoised[:, :, 2])
+        # cv2.imshow('blue', frame_denoised[:, :, 0])
+
+        y0, y1, x0, x1, mx_score = place_mask(correct_mask, frame_denoised,
+                                              y0, (y0+hh), x0, (x0+ww))
+
         y0, y1, x0, x1, mx_score = \
-            mask_placement_correction(y0, (y0+hh), x0, (x0+ww), correct_mask, frame[:, :, 2])
+            mask_placement_correction(y0, (y0+hh), x0, (x0+ww), correct_mask,
+                                      frame_denoised[:, :, 2], frame_denoised[:, :, 0])
 
         new_colorized_mask[y0:y1, x0:x1] = colorized_mask[0:hh, 0:ww]
         new_result = cv2.addWeighted(result, 1, new_colorized_mask, 0.5, 0)
+
+        equalized_hist = np.array(cv2.equalizeHist(mask_scores))
+        x_pixels, y_pixels = np.where(equalized_hist > 0)
+        equalized_hist[x_pixels, y_pixels] = equalized_hist[x_pixels, y_pixels]
+
+        # mask_scores = cv2.equalizeHist(mask_scores)
+        # cv2.imshow('mask_scores', equalized_hist)
+        # cv2.imshow('new_result', new_result)
+        # cv2.waitKey(0)
 
         positioned_colorized_mask[y0:y1, x0:x1] = colorized_mask[0:hh, 0:ww]
 

@@ -54,24 +54,13 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 # # which layers to train by name pattern.
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE,
-            epochs=2,
+            epochs=15,
             layers='heads')
 #
 # # # Save weights
 # # # Typically not needed because callbacks save after every epoch
 # # # Uncomment to save manually
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_2ep.h5")
-model.keras_model.save_weights(model_path)
-
-model.train(dataset_train, dataset_testing,
-            learning_rate=config.LEARNING_RATE,
-            epochs=5,
-            layers='heads')
-#
-# # # Save weights
-# # # Typically not needed because callbacks save after every epoch
-# # # Uncomment to save manually
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_5ep.h5")
+model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_15ep.h5")
 model.keras_model.save_weights(model_path)
 
 print('\n\n---------------------------------------------------------------')
@@ -88,7 +77,7 @@ print('---------------------------------------------------------------\n\n')
 
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=15,
+            epochs=30,
             layers="all")
 
 # Save weights
