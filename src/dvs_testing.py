@@ -2,8 +2,8 @@ import os
 
 import numpy as np
 
-from src.dvs_config import *
-from src.dvs_dataset import *
+from dvs_config import *
+from dvs_dataset import *
 import json
 
 def get_ax(rows=1, cols=1, size=8):
@@ -48,8 +48,8 @@ model = modellib.MaskRCNN(mode="inference",
 # Either set a specific path or find last trained weights
 # model_path = os.path.join(ROOT_DIR, 'temp_logs/__table_15ep_20ms_coco_skip_50', "mask_rcnn_dvs.h5")
 # model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_2ep.h5")
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_2ep.h5")
-# model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
+# model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_2ep.h5")
+model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
 # model.set_log_dir('temp_logs/__table_15ep_20ms_coco_skip_50')
 # model_path = model.find_last()
 print(model_path)
@@ -63,7 +63,7 @@ print("MODEL")
 # print(model.config.display())
 print('\n\n\n')
 
-for i in range(30):
+for i in range(10):
     # Test on a random image
     image_id = random.choice(dataset_validation.image_ids)
     print(image_id)

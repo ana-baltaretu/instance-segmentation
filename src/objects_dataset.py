@@ -16,7 +16,7 @@ print(ROOT_DIR)
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from src.utils import Dataset
+from utils import Dataset
 
 img_path = 'generated/image'
 instance_path = 'generated/instance'

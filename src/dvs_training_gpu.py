@@ -1,5 +1,5 @@
-from src.dvs_config import *
-from src.dvs_dataset import *
+from dvs_config import *
+from dvs_dataset import *
 
 config = DvsConfig()
 config.display()
@@ -15,18 +15,18 @@ dataset_testing.load('../data/N_MNIST_alex_new', 'testing')
 dataset_testing.prepare()
 
 # Load and display random samples
-image_ids = np.random.choice(dataset_train.image_ids, 30)
-for image_id in image_ids:
-    image = dataset_train.load_image(image_id)
-    mask, class_ids = dataset_train.load_mask(image_id)
-    visualize.display_top_masks(image, mask, class_ids, dataset_train.class_names)
+# image_ids = np.random.choice(dataset_train.image_ids, 30)
+# for image_id in image_ids:
+#     image = dataset_train.load_image(image_id)
+#     mask, class_ids = dataset_train.load_mask(image_id)
+#     visualize.display_top_masks(image, mask, class_ids, dataset_train.class_names)
 
 # Create model in training mode
 model = modellib.MaskRCNN(mode="training", config=config,
                           model_dir=MODEL_DIR)
 
 # Which weights to start with?
-init_with = "coco"  # imagenet, coco, last, none
+init_with = "none"  # imagenet, coco, last, none
 
 if init_with == "imagenet":
     model.load_weights(model.get_imagenet_weights(), by_name=True)
@@ -54,7 +54,7 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 # # which layers to train by name pattern.
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE,
-            epochs=15,
+            epochs=20,
             layers='heads')
 #
 # # # Save weights
@@ -77,7 +77,7 @@ print('---------------------------------------------------------------\n\n')
 
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=30,
+            epochs=40,
             layers="all")
 
 # Save weights

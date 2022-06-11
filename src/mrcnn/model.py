@@ -24,6 +24,10 @@ import tensorflow.keras.models as KM
 
 from mrcnn import utils
 
+import wandb
+wandb.init(project='dvs_training', sync_tensorboard=True)
+
+
 # Requires TensorFlow 2.0+
 from distutils.version import LooseVersion
 assert LooseVersion(tf.__version__) >= LooseVersion("2.0")
@@ -2334,6 +2338,7 @@ class MaskRCNN(object):
                                         histogram_freq=0, write_graph=True, write_images=False),
             keras.callbacks.ModelCheckpoint(self.checkpoint_path,
                                             verbose=0, save_weights_only=True),
+            wandb.keras.WandbCallback(save_graph=False, save_model=False)
         ]
 
         # Add custom callbacks to the list

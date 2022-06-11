@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.my_label_generation import *
+from my_label_generation import *
 import random
 from keras.datasets import mnist
 

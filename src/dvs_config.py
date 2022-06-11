@@ -42,7 +42,7 @@ class DvsConfig(Config):
 
     # Train on 1 GPU and 8 images per GPU. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1
-    IMAGES_PER_GPU = 12
+    IMAGES_PER_GPU = 1
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 10  # background + 10 digits
@@ -83,9 +83,9 @@ class DvsConfig(Config):
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
         "rpn_bbox_loss": 1.,
-        "mrcnn_class_loss": 1.,
+        "mrcnn_class_loss": 3.,
         "mrcnn_bbox_loss": 1.,
-        "mrcnn_mask_loss": 5.
+        "mrcnn_mask_loss": 4.
     }
 
 

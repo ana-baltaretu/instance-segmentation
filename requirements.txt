@@ -1,28 +1,28 @@
 astunparse==1.6.3
 brotlipy==0.7.0
 certifi==2021.10.8
-cffi @ file:///C:/ci_310/cffi_1642682485096/work
-charset-normalizer @ file:///tmp/build/80754af9/charset-normalizer_1630003229654/work
-cryptography @ file:///C:/ci/cryptography_1639414720302/work
-future @ file:///C:/ci/future_1607568713721/work
-idna @ file:///tmp/build/80754af9/idna_1637925883363/work
+# cffi @ file:///C:/ci_310/cffi_1642682485096/work
+# charset-normalizer @ file:///tmp/build/80754af9/charset-normalizer_1630003229654/work
+# cryptography @ file:///C:/ci/cryptography_1639414720302/work
+# future @ file:///C:/ci/future_1607568713721/work
+# idna @ file:///tmp/build/80754af9/idna_1637925883363/work
 mkl-fft==1.3.1
-mkl-random @ file:///C:/ci/mkl_random_1626186184308/work
+# mkl-random @ file:///C:/ci/mkl_random_1626186184308/work
 mkl-service==2.4.0
-numpy @ file:///C:/ci/numpy_and_numpy_base_1649782970434/work
+# numpy @ file:///C:/ci/numpy_and_numpy_base_1649782970434/work
 Pillow==9.1.0
-pycparser @ file:///tmp/build/80754af9/pycparser_1636541352034/work
-pyOpenSSL @ file:///opt/conda/conda-bld/pyopenssl_1643788558760/work
-PySocks @ file:///C:/ci/pysocks_1605307512533/work
+# pycparser @ file:///tmp/build/80754af9/pycparser_1636541352034/work
+# pyOpenSSL @ file:///opt/conda/conda-bld/pyopenssl_1643788558760/work
+# PySocks @ file:///C:/ci/pysocks_1605307512533/work
 PyYAML==6.0
-requests @ file:///opt/conda/conda-bld/requests_1641824580448/work
-six @ file:///tmp/build/80754af9/six_1644875935023/work
-torch~=1.8.1+cpu
+# requests @ file:///opt/conda/conda-bld/requests_1641824580448/work
+# six @ file:///tmp/build/80754af9/six_1644875935023/work
+# torch~=1.8.1+cpu
 torchaudio
-torchvision~=0.9.1+cpu
-typing_extensions @ file:///opt/conda/conda-bld/typing_extensions_1647553014482/work
-urllib3 @ file:///C:/ci/urllib3_1650639883891/work
-win-inet-pton @ file:///C:/ci/win_inet_pton_1605306162074/work
+# torchvision~=0.9.1+cpu
+# typing_extensions @ file:///opt/conda/conda-bld/typing_extensions_1647553014482/work
+# urllib3 @ file:///C:/ci/urllib3_1650639883891/work
+# win-inet-pton @ file:///C:/ci/win_inet_pton_1605306162074/work
 wincertstore==0.2
 tonic~=1.0.19
 
@@ -48,7 +48,7 @@ zlib~=1.2.11
 pip~=22.1
 wheel~=0.37.1
 brotli~=1.0.9
-openssl~=1.1.1o
+# openssl~=1.1.1o
 cryptography~=36.0.0
 tornado~=6.1
 typing_extensions~=4.1.1
@@ -63,7 +63,7 @@ parso~=0.8.3
 jedi~=0.18.1
 packaging~=21.3
 attrs~=21.4.0
-pywin32~=302
+# pywin32~=302
 pandas~=1.4.2
 wrapt~=1.13.3
 requests~=2.27.1

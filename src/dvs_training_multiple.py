@@ -1,5 +1,5 @@
-from src.dvs_config import *
-from src.dvs_dataset_multiple import RGBDDatasetMultiple
+from dvs_config import *
+from dvs_dataset_multiple import RGBDDatasetMultiple
 
 config = DvsConfig()
 config.display()

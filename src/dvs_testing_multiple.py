@@ -2,8 +2,8 @@ import os
 
 import numpy as np
 
-from src.dvs_config import *
-from src.dvs_dataset_multiple import RGBDDatasetMultiple
+from dvs_config import *
+from dvs_dataset_multiple import RGBDDatasetMultiple
 import json
 
 def get_ax(rows=1, cols=1, size=8):

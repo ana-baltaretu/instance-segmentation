@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
 
-from src.my_visualize import *
-from src.my_util import *
-from src.my_event_frame_generation import *
+from my_visualize import *
+from my_util import *
+from my_event_frame_generation import *
 from mask_matching import get_mask_for_index_and_label
 
 
