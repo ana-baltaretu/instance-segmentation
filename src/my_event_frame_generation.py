@@ -154,7 +154,7 @@ def generate_event_frames_with_fixed_time_window(positive_event_array_denoised, 
     x_data_pos, y_data_pos, _, time_data_pos = positive_event_array
     x_data_neg, y_data_neg, _, time_data_neg = negative_event_array
 
-    frames, len_arr_x, len_arr_y, center_indices, time_frames, frames_den = [], [], [], [], [], []
+    frames, len_arr_x, len_arr_y, center_indices, time_frames, frames_denoised = [], [], [], [], [], []
     i_den, j_den, i, j = 0, 0, 0, 0
 
     while i_den < len(time_data_pos_den) and j_den < len(time_data_neg_den):
@@ -176,13 +176,13 @@ def generate_event_frames_with_fixed_time_window(positive_event_array_denoised, 
             j_den += 1
 
         # Time noised
-        while i < len(time_data_pos_den) and time_data_pos_den[i] < current_time + window_len:
+        while i < len(time_data_pos) and time_data_pos[i] < current_time + window_len:
             x = x_data_pos[i]
             y = y_data_pos[i]
             current_frame[y][x] = (255, 0, 0)   # Blue
             time_frame[y][x] = i - current_i  # Latest pixel gets saved
             i += 1
-        while j < len(time_data_neg_den) and time_data_neg_den[j] < current_time + window_len:
+        while j < len(time_data_neg) and time_data_neg[j] < current_time + window_len:
             x = x_data_neg[j]
             y = y_data_neg[j]
             current_frame[y][x] = (0, 0, 255)   # Red
@@ -204,13 +204,14 @@ def generate_event_frames_with_fixed_time_window(positive_event_array_denoised, 
         # print(current_j, j)
         # print(current_j_den, j_den)
 
-        if np.count_nonzero(current_frame) > 100 \
-                and current_frame.shape[0] > 0 and current_frame.shape[1] > 0:
+        if np.count_nonzero(current_frame) > 100 and np.count_nonzero(current_frame_den) > 0 \
+                and current_frame.shape[0] > 0 and current_frame.shape[1] > 0 \
+                and i_den > current_i_den and j_den > current_j_den:
             len_x, len_y, overall_x, overall_y = \
                 gen_extremities(x_data_pos_den, y_data_pos_den, x_data_neg_den, y_data_neg_den,
                                 current_i_den, i_den, current_j_den, j_den)
             frames.append(current_frame)
-            frames_den.append(current_frame_den)
+            frames_denoised.append(current_frame_den)
             len_arr_x.append(len_x)
             len_arr_y.append(len_y)
             center_indices.append((overall_x, overall_y))
@@ -224,9 +225,9 @@ def generate_event_frames_with_fixed_time_window(positive_event_array_denoised, 
             # cv2.waitKey(500)
 
     cropped_frames, hx, hy, cropping_positions = \
-        generate_cropped_frames(len_arr_x, len_arr_y, frames_den, center_indices)   # Only need the one DE-noised
+        generate_cropped_frames(len_arr_x, len_arr_y, frames_denoised, center_indices)   # Only need the one DE-noised
 
-    return frames, cropped_frames, hx * 2 + 1, hy * 2 + 1, cropping_positions, time_frames
+    return frames, frames_denoised, cropped_frames, hx * 2 + 1, hy * 2 + 1, cropping_positions, time_frames
 
 
 def generate_fixed_num_events_frames(positive_event_array, negative_event_array, total_frames=20, img_shape=(34, 34)):
@@ -307,19 +308,3 @@ def generate_fixed_num_events_frames(positive_event_array, negative_event_array,
     # print(frame.shape)
     # print(hx * 2 + 1, hy * 2 + 1, x1 + 1 - x0, y1 + 1 - y0)
     return frames, cropped_frames, hx * 2 + 1, hy * 2 + 1, cropping_positions, time_frames
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

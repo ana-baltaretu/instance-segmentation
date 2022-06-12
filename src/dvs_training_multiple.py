@@ -57,11 +57,6 @@ model.train(dataset_train, dataset_testing,
             epochs=2,
             layers='heads')
 #
-# # model.train(dataset_train, dataset_testing,
-# #             learning_rate=config.LEARNING_RATE / 10,
-# #             epochs=12,
-# #             layers="all")
-#
 # # # Save weights
 # # # Typically not needed because callbacks save after every epoch
 # # # Uncomment to save manually
