@@ -115,6 +115,8 @@ class RGBDDatasetMultiple(ObjectsDataset):
             partial_mask[xs, ys] = d / 4 * 255
             new_mask[y0: y1, x0: x1, 1] = partial_mask
 
+        new_frame = cv2.cvtColor(new_frame, cv2.COLOR_BGR2RGB)
+
         cv2.imwrite(new_frame_path, new_frame)
         cv2.imwrite(new_depth_path, new_depth)
         cv2.imwrite(new_mask_path, new_mask)
