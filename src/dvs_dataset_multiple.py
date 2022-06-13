@@ -25,7 +25,7 @@ def normalize(img):
 
 
 class RGBDDatasetMultiple(ObjectsDataset):
-    REGENERATE = False  # TODO: SET THIS TO TRUE WHEN YOU WANT TO GENERATE THE DATASET, not needed always
+    REGENERATE = True  # TODO: SET THIS TO TRUE WHEN YOU WANT TO GENERATE THE DATASET, not needed always
 
     WIDTH = 64
     HEIGHT = 64
