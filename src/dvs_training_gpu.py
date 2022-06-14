@@ -56,8 +56,8 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 # # which layers to train by name pattern.
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE,
-            epochs=15,
-            layers='heads')
+            epochs=7,
+            layers='all')
 #
 # # # Save weights
 # # # Typically not needed because callbacks save after every epoch
@@ -78,14 +78,21 @@ print('---------------------------------------------------------------\n\n')
 # train by name pattern.
 
 model.train(dataset_train, dataset_testing,
-            learning_rate=config.LEARNING_RATE / 100,
-            epochs=30,
+            learning_rate=config.LEARNING_RATE / 10,
+            epochs=17,
             layers="all")
+
+
+model.train(dataset_train, dataset_testing,
+            learning_rate=config.LEARNING_RATE / 20,
+            epochs=25,
+            layers="all")
+
 
 # Save weights
 # Typically not needed because callbacks save after every epoch
 # Uncomment to save manually
-model_path = os.path.join(MODEL_DIR, "noisy_30eps_11214_lr100.h5")
+model_path = os.path.join(MODEL_DIR, "noisy_25eps_11214_alllayers.h5")
 model.keras_model.save_weights(model_path)
 
 print(model)

@@ -25,7 +25,7 @@ import tensorflow.keras.models as KM
 from mrcnn import utils
 
 import wandb
-wandb.init(project='N_MNIST_noisy', sync_tensorboard=True)
+wandb.init(project='N_MNIST_evaluations', sync_tensorboard=True)
 
 
 # Requires TensorFlow 2.0+

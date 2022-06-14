@@ -30,7 +30,7 @@ dataset_validation = RGBDDataset()
 # dataset_validation.load('../data/N_MNIST_images_actually_all_10ms', 'validation')
 # dataset_validation.load('../data/N_MNIST_images_10ms_skip_50', 'validation')
 # dataset_validation.load('../data/N_MNIST_images_20ms_skip_50', 'validation')
-dataset_validation.load('../data/final_datasets/N_MNIST_noisy', 'validation')
+dataset_validation.load('../data/final_datasets/N_MNIST_no_noise', 'validation')
 dataset_validation.prepare()
 
 class InferenceConfig(DvsConfig):
@@ -49,7 +49,7 @@ model = modellib.MaskRCNN(mode="inference",
 # model_path = os.path.join(ROOT_DIR, 'temp_logs/__table_15ep_20ms_coco_skip_50', "mask_rcnn_dvs.h5")
 # model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_2ep.h5")
 # model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_2ep.h5")
-model_path = os.path.join(MODEL_DIR, "noisy_40eps_11214.h5")
+model_path = os.path.join(MODEL_DIR, "noisy_20ep.h5")
 # model.set_log_dir('temp_logs/__table_15ep_20ms_coco_skip_50')
 # model_path = model.find_last()
 print(model_path)
