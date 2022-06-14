@@ -6,12 +6,14 @@ config.display()
 
 # Training dataset
 dataset_train = RGBDDataset()
-dataset_train.load('../data/N_MNIST_alex_new', 'training')
+# dataset_train.load('../data/N_MNIST_alex_new', 'training')
+dataset_train.load('../data/final_datasets/N_MNIST_noisy', 'training')
 dataset_train.prepare()
 
 # Validation dataset
 dataset_testing = RGBDDataset()
-dataset_testing.load('../data/N_MNIST_alex_new', 'testing')
+# dataset_testing.load('../data/N_MNIST_alex_new', 'testing')
+dataset_testing.load('../data/final_datasets/N_MNIST_noisy', 'testing')
 dataset_testing.prepare()
 
 # Load and display random samples
@@ -26,7 +28,7 @@ model = modellib.MaskRCNN(mode="training", config=config,
                           model_dir=MODEL_DIR)
 
 # Which weights to start with?
-init_with = "none"  # imagenet, coco, last, none
+init_with = "coco"  # imagenet, coco, last, none
 
 if init_with == "imagenet":
     model.load_weights(model.get_imagenet_weights(), by_name=True)
@@ -54,14 +56,14 @@ filterwarnings(action='ignore', category=DeprecationWarning, message='`np.bool` 
 # # which layers to train by name pattern.
 model.train(dataset_train, dataset_testing,
             learning_rate=config.LEARNING_RATE,
-            epochs=20,
+            epochs=15,
             layers='heads')
 #
 # # # Save weights
 # # # Typically not needed because callbacks save after every epoch
 # # # Uncomment to save manually
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_15ep.h5")
-model.keras_model.save_weights(model_path)
+# model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_15ep.h5")
+# model.keras_model.save_weights(model_path)
 
 print('\n\n---------------------------------------------------------------')
 print('---------------------------------------------------------------')
@@ -76,14 +78,14 @@ print('---------------------------------------------------------------\n\n')
 # train by name pattern.
 
 model.train(dataset_train, dataset_testing,
-            learning_rate=config.LEARNING_RATE / 10,
-            epochs=40,
+            learning_rate=config.LEARNING_RATE / 100,
+            epochs=30,
             layers="all")
 
 # Save weights
 # Typically not needed because callbacks save after every epoch
 # Uncomment to save manually
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
+model_path = os.path.join(MODEL_DIR, "noisy_30eps_11214_lr100.h5")
 model.keras_model.save_weights(model_path)
 
 print(model)

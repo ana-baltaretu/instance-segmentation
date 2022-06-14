@@ -25,7 +25,7 @@ import tensorflow.keras.models as KM
 from mrcnn import utils
 
 import wandb
-wandb.init(project='dvs_training', sync_tensorboard=True)
+wandb.init(project='N_MNIST_noisy', sync_tensorboard=True)
 
 
 # Requires TensorFlow 2.0+
@@ -38,6 +38,9 @@ tf.compat.v1.disable_eager_execution()
 #  Utility Functions
 ############################################################
 
+def wandb_log(metrics):
+    for metric in metrics:
+        wandb.log(metric)
 
 def log(text, array=None):
     """Prints a text message. And, optionally, if a Numpy array is provided it

@@ -30,7 +30,7 @@ dataset_validation = RGBDDataset()
 # dataset_validation.load('../data/N_MNIST_images_actually_all_10ms', 'validation')
 # dataset_validation.load('../data/N_MNIST_images_10ms_skip_50', 'validation')
 # dataset_validation.load('../data/N_MNIST_images_20ms_skip_50', 'validation')
-dataset_validation.load('../data/N_MNIST_alex_new', 'validation')
+dataset_validation.load('../data/final_datasets/N_MNIST_noisy', 'validation')
 dataset_validation.prepare()
 
 class InferenceConfig(DvsConfig):
@@ -49,7 +49,7 @@ model = modellib.MaskRCNN(mode="inference",
 # model_path = os.path.join(ROOT_DIR, 'temp_logs/__table_15ep_20ms_coco_skip_50', "mask_rcnn_dvs.h5")
 # model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_2ep.h5")
 # model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_2ep.h5")
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
+model_path = os.path.join(MODEL_DIR, "noisy_40eps_11214.h5")
 # model.set_log_dir('temp_logs/__table_15ep_20ms_coco_skip_50')
 # model_path = model.find_last()
 print(model_path)
@@ -63,32 +63,32 @@ print("MODEL")
 # print(model.config.display())
 print('\n\n\n')
 
-for i in range(10):
-    # Test on a random image
-    image_id = random.choice(dataset_validation.image_ids)
-    print(image_id)
-    original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
-        modellib.load_image_gt(dataset_validation, inference_config,
-                               image_id) # , use_mini_mask=False
+# for i in range(10):
+#     # Test on a random image
+#     image_id = random.choice(dataset_validation.image_ids)
+#     print(image_id)
+#     original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+#         modellib.load_image_gt(dataset_validation, inference_config,
+#                                image_id) # , use_mini_mask=False
 
-    # log("original_image", original_image)
-    # log("image_meta", image_meta)
-    # log("gt_class_id", gt_class_id)
-    # log("gt_bbox", gt_bbox)
-    # log("gt_mask", gt_mask)
-    # print(gt_mask)
+#     # log("original_image", original_image)
+#     # log("image_meta", image_meta)
+#     # log("gt_class_id", gt_class_id)
+#     # log("gt_bbox", gt_bbox)
+#     # log("gt_mask", gt_mask)
+#     # print(gt_mask)
 
-    visualize.display_instances(original_image, gt_bbox, gt_mask, gt_class_id,
-                                dataset_validation.class_names, figsize=(8, 8))
+#     visualize.display_instances(original_image, gt_bbox, gt_mask, gt_class_id,
+#                                 dataset_validation.class_names, figsize=(8, 8))
 
-    # model.detect()
+#     # model.detect()
 
-    results = model.detect([original_image], verbose=1)
-    # print(results)
+#     results = model.detect([original_image], verbose=1)
+#     # print(results)
 
-    r = results[0]
-    visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'],
-                                dataset_validation.class_names, scores=r['scores'])
+#     r = results[0]
+#     visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'],
+#                                 dataset_validation.class_names, scores=r['scores'])
 
 
 ########## EVALUATION
@@ -125,6 +125,12 @@ for image_id in image_ids:
         IoUs.append(0.0)
     APs.append(AP)
     ACCs.append(accuracy)
+
+metrics = []
+metrics.append({"Mean AP": np.mean(APs)})
+metrics.append({"Mean IoU": np.mean(IoUs)})
+metrics.append({"Mean Accuracy": np.mean(ACCs)})
+modellib.wandb_log(metrics)
 
 print("mean AP: ", np.mean(APs))
 print("mean IoUs: ", np.mean(IoUs))
