@@ -46,12 +46,15 @@ model = modellib.MaskRCNN(mode="inference",
 
 # Get path to saved weights
 # Either set a specific path or find last trained weights
+# model_path = os.path.join(ROOT_DIR, 'temp_logs/__table_15ep_10ms_coco_skip_50', "mask_rcnn_dvs.h5")
 # model_path = os.path.join(ROOT_DIR, 'temp_logs/__table_15ep_20ms_coco_skip_50', "mask_rcnn_dvs.h5")
+# model_path = os.path.join(ROOT_DIR, 'temp_logs/__table_15ep_50ms_coco_skip_50', "mask_rcnn_dvs.h5")
+model_path = os.path.join(ROOT_DIR, 'temp_logs/__multiple_15ep_20ms_skip50', "mask_rcnn_dvs.h5")
 # model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_2ep.h5")
 # model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_5ep.h5")
 # model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
 # model.set_log_dir('temp_logs/__table_15ep_20ms_coco_skip_50')
-model_path = model.find_last()
+# model_path = model.find_last()
 print(model_path)
 
 
@@ -63,7 +66,7 @@ print("MODEL")
 # print(model.config.display())
 print('\n\n\n')
 
-for i in range(30):
+for i in range(50):
     # Test on a random image
     image_id = random.choice(dataset_validation.image_ids)
     print(image_id)
@@ -76,8 +79,8 @@ for i in range(30):
     print("id", gt_class_id[1:])
     print("class", dataset_validation.class_names[1:])
 
-    visualize.display_instances(original_image, gt_bbox[1:], gt_mask[1:], gt_class_id[1:],
-                                dataset_validation.class_names[1:], figsize=(8, 8))
+    visualize.display_instances(original_image, gt_bbox, gt_mask, gt_class_id,
+                                dataset_validation.class_names, figsize=(8, 8))
 
     results = model.detect([original_image], verbose=0)
 

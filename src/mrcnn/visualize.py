@@ -69,7 +69,7 @@ def random_colors(N, bright=True):
     return colors
 
 
-def apply_mask(image, mask, color, alpha=0.5):
+def apply_mask(image, mask, color, alpha=1):
     """Apply the given mask to the image.
     """
     for c in range(3):
@@ -111,7 +111,9 @@ def display_instances(image, boxes, masks, class_ids, class_names,
         auto_show = True
 
     # Generate random colors
-    colors = colors or random_colors(N)
+    colors = colors or random_colors(N, bright=False)
+
+    # colors = [(1, 0.67, 0) for _ in range(N)]
 
     # Show area outside image boundaries.
     height, width = image.shape[:2]
@@ -160,7 +162,7 @@ def display_instances(image, boxes, masks, class_ids, class_names,
         for verts in contours:
             # Subtract the padding and flip (y, x) to (x, y)
             verts = np.fliplr(verts) - 1
-            p = Polygon(verts, facecolor="none", edgecolor=color)
+            p = Polygon(verts, facecolor="none", edgecolor=color, linewidth=5)
             ax.add_patch(p)
     ax.imshow(masked_image.astype(np.uint8))
     if auto_show:

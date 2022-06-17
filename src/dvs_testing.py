@@ -27,10 +27,11 @@ config.display()
 
 # Testing dataset
 dataset_validation = RGBDDataset()
+
 # dataset_validation.load('../data/N_MNIST_images_actually_all_10ms', 'validation')
-# dataset_validation.load('../data/N_MNIST_images_10ms_skip_50', 'validation')
+dataset_validation.load('../data/N_MNIST_images_10ms_skip_50', 'validation')
 # dataset_validation.load('../data/N_MNIST_images_20ms_skip_50', 'validation')
-dataset_validation.load('../data/N_MNIST_images_50ms_skip_50', 'validation')
+# dataset_validation.load('../data/N_MNIST_images_10ms_skip_50', 'validation')
 dataset_validation.prepare()
 
 class InferenceConfig(DvsConfig):
@@ -48,7 +49,10 @@ model = modellib.MaskRCNN(mode="inference",
 # Either set a specific path or find last trained weights
 # model_path = os.path.join(ROOT_DIR, 'temp_logs/__table_15ep_20ms_coco_skip_50', "mask_rcnn_dvs.h5")
 # model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs_5ep.h5")
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
+# model_path = os.path.join(MODEL_DIR, "mask_rcnn_dvs.h5")
+model_path = os.path.join(ROOT_DIR, 'temp_logs/__table_15ep_10ms_coco_skip_50/n-mnist-dvs20220605T1301', "mask_rcnn_n-mnist-dvs_0005.h5")
+# model_path = os.path.join(ROOT_DIR, 'temp_logs/__table_15ep_20ms_coco_skip_50', "mask_rcnn_dvs.h5")
+# model_path = os.path.join(ROOT_DIR, 'temp_logs/__table_15ep_50ms_coco_skip_50', "mask_rcnn_dvs.h5")
 # model.set_log_dir('temp_logs/__table_15ep_20ms_coco_skip_50')
 # model_path = model.find_last()
 print(model_path)
@@ -62,7 +66,7 @@ print("MODEL")
 # print(model.config.display())
 print('\n\n\n')
 
-for i in range(30):
+for i in range(1):
     # Test on a random image
     image_id = random.choice(dataset_validation.image_ids)
     print(image_id)
@@ -87,6 +91,11 @@ for i in range(30):
 
     r = results[0]
     visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'],
+                                dataset_validation.class_names, scores=r['scores'])
+
+    empty_image = np.zeros(original_image.shape)
+
+    visualize.display_instances(empty_image, r['rois'], r['masks'], r['class_ids'],
                                 dataset_validation.class_names, scores=r['scores'])
 
 
