@@ -28,8 +28,10 @@ src/frames/
 
 *.gif
 *.tif
-*.png
-
+#*.png
+data/
+src/3d_time_frames
+src/3d_time_frames_flat
 data/N_MNIST
 data/NMNIST
 logs/
