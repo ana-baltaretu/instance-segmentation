@@ -7,7 +7,7 @@ configs/__pycache__/
 src/mrcnn/__pycache__/*
 
 results/
-data/
+#data/
 temp_data/
 
 evdistill/
@@ -27,8 +27,11 @@ tutorials/frames/
 src/frames/
 
 *.gif
+*.tif
 *.png
 
+data/N_MNIST
+data/NMNIST
 logs/
 temp_logs/
-*.h5
+#*.h5
